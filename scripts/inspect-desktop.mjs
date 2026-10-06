@@ -23,10 +23,20 @@ socket.addEventListener('message', event => {
   if (data.method === 'Runtime.exceptionThrown') errors.push(data.params.exceptionDetails.text);
   if (data.method === 'Runtime.consoleAPICalled' && data.params.type === 'error') errors.push(data.params.args.map(arg => arg.value ?? arg.description).join(' '));
   const request = pending.get(data.id);
-  if (request) { pending.delete(data.id); data.error ? request.reject(new Error(data.error.message)) : request.resolve(data.result); }
+  if (request) { pending.delete(data.id); clearTimeout(request.timer); data.error ? request.reject(new Error(data.error.message)) : request.resolve(data.result); }
+});
+socket.addEventListener('close', () => {
+  for (const request of pending.values()) { clearTimeout(request.timer); request.reject(new Error('Native WebView disconnected.')); }
+  pending.clear();
 });
 function send(method, params = {}) {
-  return new Promise((resolve, reject) => { const requestId = ++id; pending.set(requestId, { resolve, reject }); socket.send(JSON.stringify({ id: requestId, method, params })); });
+  return new Promise((resolve, reject) => {
+    if (socket.readyState !== WebSocket.OPEN) { reject(new Error('Native WebView is closed.')); return; }
+    const requestId = ++id;
+    const timer=setTimeout(()=>{pending.delete(requestId);reject(new Error('Native QA request timed out: '+method));},20000);
+    pending.set(requestId, { resolve, reject, timer });
+    socket.send(JSON.stringify({ id: requestId, method, params }));
+  });
 }
 async function evaluate(expression) {
   const result = await send('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true });
@@ -469,6 +479,9 @@ try {
       const after=await invoke('get_registered_games');if(JSON.stringify(after.map(game=>game.id))!==JSON.stringify(before.map(game=>game.id)))throw new Error('Fixture cleanup changed unrelated game registrations.');
       await invoke('update_settings',{settings:original});await send('Emulation.clearDeviceMetricsOverride');await send('Page.reload');
     }
+  } else if (mode === 'auto-boost') {
+    const { verifyAutoBoost } = await import('./verify-auto-boost.mjs');
+    await verifyAutoBoost({ send, evaluate, delay, errors });
   } else if (mode === 'eval') {
     console.log(JSON.stringify(await evaluate(process.argv[3])));
   }

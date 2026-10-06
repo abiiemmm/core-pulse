@@ -51,7 +51,7 @@ export default function Views({ page, model: m, sensor, setSensor, navigate }: P
   }
 
   if (page === 'analytics') return <Analytics model={m} />;
-  if (page === 'gaming') return <Gaming profiles={m.profiles} navigate={navigate} />;
+  if (page === 'gaming') return <Gaming profiles={m.profiles} plans={m.plans} navigate={navigate} />;
   if (page === 'processes') return <Processes />;
 
   if (page === 'tuner') return <>

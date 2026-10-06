@@ -1,4 +1,4 @@
-import type { GameSelection, GameSettings, GameSnapshot, RegisteredGame, AnalyticsReport, AppSettings, SensorInventory, Capability, CleanerScan, CleaningResult, CleanupProgress, DeviceInfo, HardwareSnapshot, HistoryPoint, PerformanceProfile, PowerPlan, PersistenceStatus, ProcessSnapshot, TuningSession } from './types';
+import type { AutoBoostStatus, GamingSession, GameSelection, GameSettings, GameSnapshot, RegisteredGame, AnalyticsReport, AppSettings, SensorInventory, Capability, CleanerScan, CleaningResult, CleanupProgress, DeviceInfo, HardwareSnapshot, HistoryPoint, PerformanceProfile, PowerPlan, PersistenceStatus, ProcessSnapshot, TuningSession } from './types';
 
 type TauriApi = {
   core: { invoke: <T>(command: string, args?: Record<string, unknown>) => Promise<T> };
@@ -74,7 +74,8 @@ async function invoke<T>(command: string, args?: Record<string, unknown>): Promi
     case 'get_analytics_report': return { from: new Date(Date.now() - Number(args?.minutes) * 60000).toISOString(), to: now(), bucket_seconds: 5, points: [] } as T;
     case 'get_cleaning_history': return [] as T;
     case 'get_unfinished_tuning_sessions': return [] as T;
-    case 'get_registered_games': return [] as T;
+    case 'get_registered_games': case 'get_gaming_sessions': return [] as T;
+    case 'get_auto_boost_status': return {mode:'idle',tuning_session_id:null,profile_id:null,relevant_games:0,reason:null,error:null,updated_at:now(),discovery_status:'ready',discovery_message:null} as T;
     case 'get_game_status': return { recorded_at: now(), status: 'demo', games: [] } as T;
     case 'scan_cleanable_files': return { plan_id: 'demo', expires_at: new Date(Date.now() + 300000).toISOString(), category: 'user_temp', estimated_bytes: 0, eligible_count: 0, skipped_count: 0, warnings: ['Pratinjau web tidak memindai file di komputer.'] } as T;
     case 'start_monitoring': case 'stop_monitoring': return undefined as T;
@@ -83,6 +84,10 @@ async function invoke<T>(command: string, args?: Record<string, unknown>): Promi
 }
 
 export const api = {
+  getAutoBoost: () => invoke<AutoBoostStatus>('get_auto_boost_status'),
+  setAutoBoost: (gameId: string, enabled: boolean, expected: GameSettings) => invoke<RegisteredGame>('set_auto_boost', {gameId, enabled, expected}),
+  getGamingSessions: () => invoke<GamingSession[]>('get_gaming_sessions'),
+  deleteGamingSession: (sessionId: string) => invoke<void>('delete_gaming_session', {sessionId}),
   pickGame: () => invoke<GameSelection | null>('pick_game_executable'),
   registerGame: (selectionId: string, settings: GameSettings) => invoke<RegisteredGame>('register_game', { selectionId, settings }),
   getGames: () => invoke<RegisteredGame[]>('get_registered_games'),

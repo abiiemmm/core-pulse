@@ -8,11 +8,12 @@ mod persistence;
 mod processes;
 mod sensors;
 mod games;
+mod automation;
 
 use crate::models::*;
 use chrono::Utc;
 use rusqlite::Connection;
-use std::{collections::HashMap, path::PathBuf, sync::{atomic::{AtomicBool, Ordering}, Arc, Mutex}, thread, time::{Duration, Instant}};
+use std::{collections::HashMap, path::PathBuf, sync::{atomic::{AtomicBool, AtomicU8, Ordering}, Arc, Mutex}, thread, time::{Duration, Instant}};
 use tauri::{Emitter, Manager, State};
 
 struct Inner {
@@ -24,7 +25,9 @@ struct Inner {
     settings_update: Mutex<()>,
     detection: Mutex<()>,
     processes: Mutex<processes::Collector>,
-    games: Mutex<games::Registry>,
+    games: Arc<Mutex<games::Registry>>,
+    automation: automation::Service,
+    closing: AtomicU8,
     game_picker_open: AtomicBool,
     sensors: sensors::Service,
     history_writer: persistence::HistoryWriter,
@@ -32,7 +35,7 @@ struct Inner {
     cleaner_plans: Mutex<HashMap<String, cleaner::Plan>>,
     cancel_cleanup: AtomicBool,
     cleanup_running: AtomicBool,
-    power: power::Controller,
+    power: Arc<power::Controller>,
     #[allow(dead_code)] db_path: PathBuf,
 }
 struct AppState { inner: Arc<Inner> }
@@ -178,7 +181,9 @@ async fn register_game(state:State<'_,AppState>,selection_id:String,settings:gam
     let inner=state.inner.clone();
     tauri::async_runtime::spawn_blocking(move || {
         let mut registry=inner.games.lock().map_err(|_|lock_error())?;
-        registry.register(&inner.db,&selection_id,settings)
+        let game=registry.register(&inner.db,&selection_id,settings)?;
+        inner.automation.invalidate();
+        Ok(game)
     }).await.map_err(|error|error.to_string())?
 }
 #[tauri::command]
@@ -190,8 +195,10 @@ async fn update_registered_game(state:State<'_,AppState>,game_id:String,settings
     let inner=state.inner.clone();
     tauri::async_runtime::spawn_blocking(move || {
         let mut registry=inner.games.lock().map_err(|_|lock_error())?;
-        let conn=inner.db.lock().map_err(|_|lock_error())?;
-        registry.update(&conn,&game_id,settings)
+        inner.automation.configure(|_| {
+            let conn=inner.db.lock().map_err(|_|lock_error())?;
+            registry.update(&conn,&game_id,settings)
+        })
     }).await.map_err(|error|error.to_string())?
 }
 #[tauri::command]
@@ -199,19 +206,49 @@ async fn remove_registered_game(state:State<'_,AppState>,game_id:String)->Result
     let inner=state.inner.clone();
     tauri::async_runtime::spawn_blocking(move || {
         let mut registry=inner.games.lock().map_err(|_|lock_error())?;
-        let conn=inner.db.lock().map_err(|_|lock_error())?;
-        registry.remove(&conn,&game_id)
+        inner.automation.configure(|_| {
+            let conn=inner.db.lock().map_err(|_|lock_error())?;
+            registry.remove(&conn,&game_id)
+        })
     }).await.map_err(|error|error.to_string())?
 }
 #[tauri::command]
 async fn get_game_status(state:State<'_,AppState>)->Result<games::Snapshot,String> {
     let inner=state.inner.clone();
+    tauri::async_runtime::spawn_blocking(move ||inner.automation.game_snapshot()).await.map_err(|error|error.to_string())?
+}
+#[tauri::command]
+fn get_auto_boost_status(state:State<'_,AppState>)->automation::RuntimeStatus { state.inner.automation.status() }
+#[tauri::command]
+async fn set_auto_boost(state:State<'_,AppState>,game_id:String,enabled:bool,expected:games::Settings)->Result<games::RegisteredGame,String> {
+    let inner=state.inner.clone();
     tauri::async_runtime::spawn_blocking(move || {
+        if enabled {
+            let game={let conn=inner.db.lock().map_err(|_|lock_error())?;games::get_games(&conn)?.into_iter().find(|game|game.id==game_id).ok_or("Game tidak ditemukan")?};
+            if game.settings()!=expected { return Err("Pengaturan game berubah. Muat ulang sebelum mengaktifkan Auto Boost.".into()); }
+            // File I/O happens before either operation lock, so a slow executable
+            // cannot stop AC protection or an explicit manual restoration.
+            game.validate_file()?;
+        }
+        let plans=if enabled {power::plans()?} else {vec![]};
         let mut registry=inner.games.lock().map_err(|_|lock_error())?;
-        let games={let conn=inner.db.lock().map_err(|_|lock_error())?;games::get_games(&conn)?};
-        // Never keep SQLite locked during process discovery or executable I/O.
-        registry.snapshot(games)
+        inner.automation.configure(|_| {
+            let conn=inner.db.lock().map_err(|_|lock_error())?;
+            registry.set_auto(&conn,&game_id,enabled,&expected,&plans)
+        })
     }).await.map_err(|error|error.to_string())?
+}
+#[tauri::command]
+async fn get_gaming_sessions(state:State<'_,AppState>)->Result<Vec<games::Session>,String> {
+    database_work(state.inner.clone(),|conn|games::sessions(conn)).await
+}
+#[tauri::command]
+async fn delete_gaming_session(state:State<'_,AppState>,session_id:String)->Result<(),String> {
+    let inner=state.inner.clone();
+    tauri::async_runtime::spawn_blocking(move ||inner.automation.configure(|_| {
+        let mut conn=inner.db.lock().map_err(|_|lock_error())?;
+        games::delete_session(&mut conn,&session_id)
+    })).await.map_err(|error|error.to_string())?
 }
 #[tauri::command]
 fn start_monitoring(state: State<'_, AppState>, app: tauri::AppHandle) { state.inner.monitoring.store(true,Ordering::Relaxed); let _ = app.emit("monitoring:status",serde_json::json!({"status":"running","timestamp":Utc::now().to_rfc3339()})); }
@@ -247,7 +284,7 @@ async fn get_performance_profiles(state: State<'_, AppState>) -> Result<Vec<Perf
 async fn update_profile_mapping(state: State<'_, AppState>, profile_id: String, guid: String, ac_only: bool) -> Result<PerformanceProfile, String> {
     let inner = state.inner.clone();
     tauri::async_runtime::spawn_blocking(move || {
-        inner.power.map_profile(&inner.db, &profile_id, &guid, ac_only)
+        inner.automation.configure(|_|inner.power.map_profile(&inner.db, &profile_id, &guid, ac_only))
     }).await.map_err(|e| e.to_string())?
 }
 #[tauri::command]
@@ -257,14 +294,14 @@ async fn get_unfinished_tuning_sessions(state: State<'_, AppState>) -> Result<Ve
 #[tauri::command]
 async fn activate_performance_profile(state: State<'_, AppState>, app: tauri::AppHandle, profile_id: String) -> Result<TuningSession, String> {
     let inner = state.inner.clone();
-    let result = tauri::async_runtime::spawn_blocking(move || inner.power.activate(&inner.db,&profile_id)).await.map_err(|e| e.to_string())?;
+    let result = tauri::async_runtime::spawn_blocking(move || inner.automation.configure(|_|inner.power.activate(&inner.db,&profile_id))).await.map_err(|e| e.to_string())?;
     if let Ok(ref session) = result { let _ = app.emit("tuning:changed",session); }
     result
 }
 #[tauri::command]
 async fn restore_previous_profile(state: State<'_, AppState>, app: tauri::AppHandle, session_id: String, force: bool) -> Result<TuningSession, String> {
     let inner = state.inner.clone();
-    let result = tauri::async_runtime::spawn_blocking(move || inner.power.restore(&inner.db,&session_id,force)).await.map_err(|e| e.to_string())?;
+    let result = tauri::async_runtime::spawn_blocking(move || inner.automation.configure(|controller| { let restored=inner.power.restore(&inner.db,&session_id,force)?; controller.manually_restored(&session_id); Ok(restored) })).await.map_err(|e| e.to_string())?;
     if let Ok(ref session) = result { let _ = app.emit("tuning:changed",session); }
     result
 }
@@ -326,6 +363,19 @@ async fn purge_monitoring_history(state: State<'_, AppState>) -> Result<usize, S
 #[tauri::command]
 fn get_monitoring_persistence(state: State<'_, AppState>) -> PersistenceStatus { state.inner.history_writer.status() }
 
+fn begin_shutdown(app: &tauri::AppHandle, inner: Arc<Inner>, code: i32) {
+    if inner.closing.compare_exchange(0,1,Ordering::AcqRel,Ordering::Acquire).is_err() { return; }
+    let app=app.clone();
+    thread::spawn(move || {
+        if let Err(error)=inner.automation.shutdown() {
+            if let Ok(conn)=inner.db.lock() { db::log(&conn,"game","shutdown_recovery",&error); }
+            let _=app.emit("app:error",serde_json::json!({"message":error,"status":"error","timestamp":Utc::now().to_rfc3339()}));
+        }
+        inner.closing.store(2,Ordering::Release);
+        app.exit(code);
+    });
+}
+
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
@@ -353,7 +403,15 @@ pub fn run() {
             #[cfg(debug_assertions)]
             let sensor_path = if sensor_path.is_file() { sensor_path } else { PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../sidecar/publish/CorePulse.SensorHost.exe") };
             let sensors = sensors::Service::start(sensor_path, move |status| { let _ = sensor_app.emit("sensors:status", status); });
-            let inner = Arc::new(Inner { db:database,info:Mutex::new(info),capabilities:Mutex::new(capabilities),snapshot:Mutex::new(initial),settings:Mutex::new(settings),settings_update:Mutex::new(()),detection:Mutex::new(()),processes:Mutex::new(processes::Collector::default()),games:Mutex::new(games::Registry::default()),game_picker_open:AtomicBool::new(false),sensors,history_writer,monitoring:AtomicBool::new(false),cleaner_plans:Mutex::new(HashMap::new()),cancel_cleanup:AtomicBool::new(false),cleanup_running:AtomicBool::new(false),power:power::Controller::default(),db_path });
+            let games=Arc::new(Mutex::new(games::Registry::default()));
+            let power=Arc::new(power::Controller::default());
+            let automatic_app=app.handle().clone();
+            let automation=automation::Service::start(database.clone(),games.clone(),power.clone(),move |status,session| {
+                let _=automatic_app.emit("gaming:automation",&status);
+                if let Some(session)=session { let _=automatic_app.emit("tuning:changed",session); }
+                if let Some(error)=&status.tuning.error { let _=automatic_app.emit("app:error",serde_json::json!({"message":error,"status":"error","timestamp":Utc::now().to_rfc3339()})); }
+            });
+            let inner = Arc::new(Inner { db:database,info:Mutex::new(info),capabilities:Mutex::new(capabilities),snapshot:Mutex::new(initial),settings:Mutex::new(settings),settings_update:Mutex::new(()),detection:Mutex::new(()),processes:Mutex::new(processes::Collector::default()),games,automation,closing:AtomicU8::new(0),game_picker_open:AtomicBool::new(false),sensors,history_writer,monitoring:AtomicBool::new(false),cleaner_plans:Mutex::new(HashMap::new()),cancel_cleanup:AtomicBool::new(false),cleanup_running:AtomicBool::new(false),power,db_path });
             start_sampler(inner.clone(), app.handle().clone());
             start_power_watchdog(inner.clone(), app.handle().clone());
             app.manage(AppState { inner: inner.clone() });
@@ -365,7 +423,19 @@ pub fn run() {
             });
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![pick_game_executable,register_game,get_registered_games,update_registered_game,remove_registered_game,get_game_status,get_sensor_inventory,get_process_snapshot,get_system_information,detect_hardware,get_device_capabilities,get_hardware_snapshot,start_monitoring,stop_monitoring,get_hardware_history,get_analytics_report,get_power_plans,get_active_power_plan,get_performance_profiles,update_profile_mapping,get_unfinished_tuning_sessions,activate_performance_profile,restore_previous_profile,scan_cleanable_files,execute_cleanup,cancel_cleanup,get_cleaning_history,get_settings,update_settings,purge_monitoring_history,get_monitoring_persistence])
-        .run(tauri::generate_context!())
-        .expect("Core Pulse failed to start");
+        .invoke_handler(tauri::generate_handler![set_auto_boost,get_auto_boost_status,get_gaming_sessions,delete_gaming_session,pick_game_executable,register_game,get_registered_games,update_registered_game,remove_registered_game,get_game_status,get_sensor_inventory,get_process_snapshot,get_system_information,detect_hardware,get_device_capabilities,get_hardware_snapshot,start_monitoring,stop_monitoring,get_hardware_history,get_analytics_report,get_power_plans,get_active_power_plan,get_performance_profiles,update_profile_mapping,get_unfinished_tuning_sessions,activate_performance_profile,restore_previous_profile,scan_cleanable_files,execute_cleanup,cancel_cleanup,get_cleaning_history,get_settings,update_settings,purge_monitoring_history,get_monitoring_persistence])
+        .build(tauri::generate_context!())
+        .expect("Core Pulse failed to start")
+        .run(|app,event| {
+            let state=app.state::<AppState>();
+            match event {
+                tauri::RunEvent::WindowEvent { label,event:tauri::WindowEvent::CloseRequested { api,.. },.. } if label=="main" && state.inner.closing.load(Ordering::Acquire)!=2 => {
+                    api.prevent_close();begin_shutdown(app,state.inner.clone(),0);
+                },
+                tauri::RunEvent::ExitRequested { code,api,.. } if state.inner.closing.load(Ordering::Acquire)!=2 => {
+                    api.prevent_exit();begin_shutdown(app,state.inner.clone(),code.unwrap_or(0));
+                },
+                _=>{},
+            }
+        });
 }

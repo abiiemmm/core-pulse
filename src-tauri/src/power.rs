@@ -5,26 +5,29 @@ use chrono::Utc;
 use rusqlite::{params, Connection, OptionalExtension};
 use std::sync::Mutex;
 use uuid::Uuid;
-use windows::WindowsPower;
+pub(crate) use windows::WindowsPower;
 
-trait PowerBackend {
+pub(crate) trait PowerBackend {
     fn plans(&mut self) -> Result<Vec<PowerPlan>, String>;
     fn active(&mut self) -> Result<String, String>;
     fn set_active(&mut self, guid: &str) -> Result<(), String>;
     fn power_source(&mut self) -> String;
+    fn verify_game_observation(&mut self) -> Result<(),String> { Ok(()) }
+    fn verify_game_activation(&mut self, _gaming_sessions: &[String]) -> Result<(),String> { Ok(()) }
 }
 
 pub fn plans() -> Result<Vec<PowerPlan>, String> { WindowsPower.plans() }
 
+struct OwnedSession { id: String, ac_only: bool, automatic: bool }
 #[derive(Default)]
-pub struct Controller { operation: Mutex<()>, owned: Mutex<Option<(String, bool)>> }
+pub struct Controller { operation: Mutex<()>, owned: Mutex<Option<OwnedSession>> }
 impl Controller {
     pub fn owned_ac_session(&self) -> Option<String> {
-        self.owned.lock().unwrap_or_else(|error| error.into_inner()).as_ref().filter(|(_, ac_only)| *ac_only).map(|(id, _)| id.clone())
+        self.owned.lock().unwrap_or_else(|error| error.into_inner()).as_ref().filter(|session| session.ac_only && !session.automatic).map(|session| session.id.clone())
     }
     fn release_owned(&self, id: &str) {
         let mut owned = self.owned.lock().unwrap_or_else(|error| error.into_inner());
-        if owned.as_ref().is_some_and(|(owned_id, _)| owned_id == id) { *owned = None; }
+        if owned.as_ref().is_some_and(|session| session.id == id) { *owned = None; }
     }
     pub fn activate(&self, database: &Mutex<Connection>, profile_id: &str) -> Result<TuningSession, String> {
         self.activate_with(database, profile_id, &mut WindowsPower)
@@ -44,15 +47,26 @@ impl Controller {
     }
 
     fn activate_with(&self, database: &Mutex<Connection>, profile_id: &str, backend: &mut impl PowerBackend) -> Result<TuningSession, String> {
+        self.activate_request(database, profile_id, false, None, backend)
+    }
+
+    pub(crate) fn activate_game_with(&self, database: &Mutex<Connection>, profile_id: &str, ac_only: bool, gaming_sessions: &[String], backend: &mut impl PowerBackend) -> Result<TuningSession, String> {
+        if gaming_sessions.is_empty() || gaming_sessions.len() > 100 { return Err("Sesi game terverifikasi diperlukan".into()); }
+        self.activate_request(database, profile_id, ac_only, Some(gaming_sessions), backend)
+    }
+
+    fn activate_request(&self, database: &Mutex<Connection>, profile_id: &str, game_ac_only: bool, gaming_sessions: Option<&[String]>, backend: &mut impl PowerBackend) -> Result<TuningSession, String> {
         // Only system-changing power operations serialize here. SQLite is held for
         // short reads/writes and is NEVER held while asking Windows for anything.
         // A poisoned unit mutex contains no state; durable sessions remain the guard.
         let _operation = self.operation.lock().unwrap_or_else(|error| error.into_inner());
         let selected = with_db(database, |conn| { ensure_no_session(conn)?; profile(conn, profile_id) })?;
-        if selected.ac_only && backend.power_source() != "AC power" { return Err("Profil ini hanya berlaku saat daya AC".into()); }
+        let ac_only = selected.ac_only || game_ac_only;
+        if ac_only && backend.power_source() != "AC power" { return Err("Profil ini hanya berlaku saat daya AC".into()); }
         let target = normalized_guid(selected.scheme_guid.as_deref().ok_or("Profil belum dipetakan ke Windows power scheme")?)?;
         if !backend.plans()?.iter().any(|plan| plan.guid == target) { return Err("Scheme yang dipetakan tidak tersedia lagi".into()); }
         let previous = normalized_guid(&backend.active()?)?;
+        if let Some(ids) = gaming_sessions { backend.verify_game_activation(ids)?; }
         let session = TuningSession { id: Uuid::new_v4().to_string(), profile_id: profile_id.into(), previous_guid: previous, applied_guid: target, status: "pending".into(), started_at: Utc::now().to_rfc3339(), error: None };
         with_db(database, |conn| {
             // A SQLite write transaction protects the pending check across separate
@@ -61,13 +75,21 @@ impl Controller {
             ensure_no_session(&tx)?;
             let current = profile(&tx, profile_id)?;
             if current.scheme_guid.as_deref().map(normalized_guid).transpose()?.as_deref() != Some(&session.applied_guid) || current.ac_only != selected.ac_only { return Err("Pemetaan profil berubah; muat ulang sebelum menerapkan".into()); }
-            tx.execute("INSERT INTO tuning_sessions(id,profile_id,previous_scheme_guid,applied_scheme_guid,trigger,status,started_at) VALUES(?1,?2,?3,?4,'manual','pending',?5)", params![session.id,session.profile_id,session.previous_guid,session.applied_guid,session.started_at]).map_err(|error| error.to_string())?;
+            tx.execute("INSERT INTO tuning_sessions(id,profile_id,previous_scheme_guid,applied_scheme_guid,trigger,status,started_at) VALUES(?1,?2,?3,?4,?6,'pending',?5)", params![session.id,session.profile_id,session.previous_guid,session.applied_guid,session.started_at,if gaming_sessions.is_some() { "auto_game" } else { "manual" } ]).map_err(|error| error.to_string())?;
+            if let Some(ids) = gaming_sessions {
+                for id in ids {
+                    Uuid::parse_str(id).map_err(|_| "Identitas sesi game tidak valid")?;
+                    let changed = tx.execute("UPDATE gaming_sessions SET tuning_session_id=?2 WHERE id=?1 AND status='active' AND tuning_session_id IS NULL AND EXISTS(SELECT 1 FROM registered_games g WHERE g.id=gaming_sessions.game_id AND g.archived=0 AND g.auto_boost=1 AND g.executable_identity!='')", params![id,session.id]).map_err(|error|error.to_string())?;
+                    if changed != 1 { return Err("Sesi game tidak lagi memenuhi syarat Auto Boost".into()); }
+                }
+            }
             db::log(&tx, "tuning", "pending", "Power scheme change requested");
             tx.commit().map_err(|error| error.to_string())
         })?;
         let result: Result<(), String> = (|| {
+            if let Some(ids) = gaming_sessions { backend.verify_game_activation(ids)?; }
             // Recheck both AC and external scheme changes after committing pending.
-            if selected.ac_only && backend.power_source() != "AC power" { return Err("Profil ini hanya berlaku saat daya AC".into()); }
+            if ac_only && backend.power_source() != "AC power" { return Err("Profil ini hanya berlaku saat daya AC".into()); }
             if normalized_guid(&backend.active()?)? != session.previous_guid { return Err("Power plan telah diubah di luar Core Pulse. Tinjau sebelum memulihkan.".into()); }
             if session.applied_guid != session.previous_guid { apply_verified(backend, &session.applied_guid)?; }
             update_session(database, &session.id, "active", None, false)?;
@@ -75,7 +97,7 @@ impl Controller {
         })();
         match result {
             Ok(()) => {
-                *self.owned.lock().unwrap_or_else(|error| error.into_inner()) = Some((session.id.clone(), selected.ac_only));
+                *self.owned.lock().unwrap_or_else(|error| error.into_inner()) = Some(OwnedSession { id: session.id.clone(), ac_only, automatic: gaming_sessions.is_some() });
                 Ok(TuningSession { status: "active".into(), ..session })
             },
             Err(error) => {
@@ -98,7 +120,7 @@ impl Controller {
         update_session(database, &session.id, if safe { "failed" } else { "conflict" }, Some(error), safe)
     }
 
-    fn restore_with(&self, database: &Mutex<Connection>, session_id: &str, force: bool, backend: &mut impl PowerBackend) -> Result<TuningSession, String> {
+    pub(crate) fn restore_with(&self, database: &Mutex<Connection>, session_id: &str, force: bool, backend: &mut impl PowerBackend) -> Result<TuningSession, String> {
         normalized_guid(session_id).map_err(|_| "Sesi tuning tidak valid")?;
         let _operation = self.operation.lock().unwrap_or_else(|error| error.into_inner());
         let session = with_db(database, |conn| load_session(conn, session_id))?;
@@ -151,7 +173,7 @@ fn profile(conn: &Connection, profile_id: &str) -> Result<PerformanceProfile, St
 fn ensure_no_session(conn: &Connection) -> Result<(), String> {
     if !db::unfinished_sessions(conn)?.is_empty() { Err("Selesaikan sesi tuning sebelumnya sebelum mengaktifkan profil lain".into()) } else { Ok(()) }
 }
-fn load_session(conn: &Connection, id: &str) -> Result<TuningSession, String> {
+pub(crate) fn load_session(conn: &Connection, id: &str) -> Result<TuningSession, String> {
     conn.query_row("SELECT id,profile_id,previous_scheme_guid,applied_scheme_guid,status,started_at,error FROM tuning_sessions WHERE id=?1", [id], |row| Ok(TuningSession { id:row.get(0)?,profile_id:row.get(1)?,previous_guid:row.get(2)?,applied_guid:row.get(3)?,status:row.get(4)?,started_at:row.get(5)?,error:row.get(6)? })).optional().map_err(|error| error.to_string())?.ok_or("Sesi tidak ditemukan".into())
 }
 fn apply_verified(backend: &mut impl PowerBackend, target: &str) -> Result<(), String> {

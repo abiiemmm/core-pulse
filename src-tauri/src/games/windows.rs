@@ -211,6 +211,9 @@ impl Process {
     pub fn alive(&self) -> bool {
         (unsafe { WaitForSingleObject(self.handle.as_raw_handle(), 0) }) != WAIT_OBJECT_0
     }
+    pub fn verified_alive(&self) -> bool {
+        (unsafe { WaitForSingleObject(self.handle.as_raw_handle(), 0) }) == WAIT_TIMEOUT
+    }
     pub fn matches(&self, executable: &Executable) -> bool {
         self.executable.identity == executable.identity
             && self.executable.path.eq_ignore_ascii_case(&executable.path)

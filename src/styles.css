@@ -552,4 +552,23 @@ tbody tr:hover { background: var(--raised); }
 .game-selected-path { font-family: var(--mono); font-size: 11px; color: var(--muted); overflow-wrap: anywhere; line-height: 1.7; margin: 5px 0 0; }
 .game-editor .field-help { margin: 0; }
 .game-remove-name { margin: 16px 0 0; overflow-wrap: anywhere; }
+.game-boost-panel { padding: 22px 24px; margin-bottom: 24px; }
+.game-boost-heading { display: flex; align-items: center; gap: 13px; flex-wrap: wrap; }
+.game-boost-heading h2 { margin: 3px 0 0; font-size: 16px; font-weight: 500; }
+.game-boost-heading .eyebrow { font-size: 10px; color: var(--muted); }
+.game-boost-profile { margin-left: auto; font-size: 11px; padding: 5px 9px; border: 1px solid var(--border); border-radius: 4px; }
+.game-boost-panel > p { margin: 13px 0 0; color: var(--secondary); font-size: 12px; line-height: 1.8; }
+.game-boost-panel > .quiet-button { margin-top: 14px; }
+.game-automation { margin-top: 13px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 11px; color: var(--secondary); }
+.game-history { margin-top: 24px; overflow: hidden; }
+.game-history > .section-header { padding: 20px 24px; margin: 0; border-bottom: 1px solid var(--border); }
+.game-history-scroll { overflow-x: auto; }
+.game-history table { width: 100%; border-collapse: collapse; font-size: 11px; min-width: 660px; }
+.game-history th, .game-history td { padding: 14px 18px; text-align: left; border-bottom: 1px solid var(--border); color: var(--secondary); }
+.game-history th { font-weight: 400; color: var(--muted); }
+.game-history td:first-child { color: var(--text); max-width: 250px; overflow-wrap: anywhere; }
+.game-history tbody tr:last-child td { border-bottom: 0; }
+.game-enable-summary { margin-top: 18px; font-size: 12px; line-height: 1.8; }
+.game-enable-summary p { margin-top: 12px; color: var(--secondary); }
+.game-editor .setting-row { padding: 10px 0; }
 @media (max-width: 1000px) { .gaming-overview { flex-wrap: wrap; gap: 18px; } .gaming-local { max-width: none; } .gaming-footnote { flex-wrap: wrap; gap: 10px; } }

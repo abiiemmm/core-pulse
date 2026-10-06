@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use std::{
     collections::{HashMap, HashSet},
     path::{Path, PathBuf},
-    sync::Mutex,
+    sync::{Arc, Mutex},
     time::{Duration, Instant},
 };
 use sysinfo::{ProcessRefreshKind, ProcessesToUpdate, System};
@@ -44,7 +44,7 @@ impl RegisteredGame {
         }
     }
 }
-#[derive(Clone, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Deserialize)]
 pub struct Settings {
     pub display_name: String,
     pub profile_id: String,
@@ -86,7 +86,7 @@ struct PendingSelection {
 #[derive(Default)]
 pub struct Registry {
     selection: HashMap<String, PendingSelection>,
-    processes: HashMap<String, Vec<Process>>,
+    processes: HashMap<String, Vec<Arc<Process>>>,
     previous: Option<(Instant, Snapshot)>,
 }
 impl Registry {
@@ -177,6 +177,19 @@ impl Registry {
     ) -> Result<RegisteredGame, String> {
         settings.validate()?;
         Uuid::parse_str(id).map_err(|_| "Identitas game tidak valid")?;
+        let current = get_games(conn)?
+            .into_iter()
+            .find(|game| game.id == id)
+            .ok_or("Game tidak ditemukan")?;
+        if current.auto_boost
+            && (current.profile_id != settings.profile_id
+                || current.ac_only != settings.ac_only
+                || current.restore_on_exit != settings.restore_on_exit)
+        {
+            return Err(
+                "Nonaktifkan Auto Boost sebelum mengubah profil atau aturan pemulihan.".into(),
+            );
+        }
         let changed = conn.execute("UPDATE registered_games SET display_name=?2,profile_id=?3,restore_on_exit=?4,ac_only=?5,updated_at=?6 WHERE id=?1 AND archived=0", params![id,settings.display_name.trim(),settings.profile_id,settings.restore_on_exit,settings.ac_only,Utc::now().to_rfc3339()]).map_err(|error| error.to_string())?;
         if changed != 1 {
             return Err("Game tidak ditemukan".into());
@@ -218,7 +231,7 @@ impl Registry {
         }
         let ids: HashSet<_> = games.iter().map(|game| game.id.clone()).collect();
         self.processes.retain(|id, processes| {
-            processes.retain(Process::alive);
+            processes.retain(|process| process.alive());
             ids.contains(id)
         });
         let names: HashSet<_> = games
@@ -279,7 +292,7 @@ impl Registry {
                         // Move the checked handle without reopening a potentially
                         // reused PID. Other registered files cannot share its ID.
                         if let Ok(process) = std::mem::replace(candidate, Err(String::new())) {
-                            running.push(process);
+                            running.push(Arc::new(process));
                         }
                     }
                     Err(error) if !error.is_empty() => uncertain = true,
@@ -313,6 +326,133 @@ impl Registry {
     }
 }
 
+pub struct Observation {
+    snapshot: Snapshot,
+    proofs: HashMap<String, Vec<Arc<Process>>>,
+}
+impl Observation {
+    pub fn has_live_game(&self, game: &RegisteredGame) -> bool {
+        self.proofs.get(&game.id).is_some_and(|proofs| {
+            proofs
+                .iter()
+                .any(|process| process.verified_alive() && process.matches(&game.executable()))
+        })
+    }
+    pub fn view(&self, games: Vec<RegisteredGame>) -> Snapshot {
+        let mut rows = vec![];
+        for game in games {
+            let expected = game.executable();
+            let previous = self
+                .snapshot
+                .games
+                .iter()
+                .find(|row| row.game.id == game.id && row.game.executable() == expected);
+            let count = self
+                .proofs
+                .get(&game.id)
+                .map(|proofs| {
+                    proofs
+                        .iter()
+                        .filter(|process| process.verified_alive() && process.matches(&expected))
+                        .count()
+                })
+                .unwrap_or(0);
+            let status = match previous {
+                Some(row) if row.status == "running" && count == 0 => "unverified",
+                Some(row) => row.status.as_str(),
+                None => "unverified",
+            };
+            rows.push(GameStatus {
+                game,
+                status: status.into(),
+                process_count: count,
+                message: previous.and_then(|row| row.message.clone()),
+            });
+        }
+        Snapshot {
+            recorded_at: self.snapshot.recorded_at.clone(),
+            status: self.snapshot.status.clone(),
+            games: rows,
+        }
+    }
+}
+impl Registry {
+    pub fn observe(&mut self, games: Vec<RegisteredGame>) -> Result<Observation, String> {
+        self.previous = None;
+        let snapshot = self.snapshot(games)?;
+        Ok(Observation {
+            snapshot,
+            proofs: self.processes.clone(),
+        })
+    }
+    pub fn set_auto(
+        &mut self,
+        conn: &Connection,
+        id: &str,
+        enabled: bool,
+        expected: &Settings,
+        plans: &[crate::models::PowerPlan],
+    ) -> Result<RegisteredGame, String> {
+        Uuid::parse_str(id).map_err(|_| "Identitas game tidak valid")?;
+        let game = get_games(conn)?
+            .into_iter()
+            .find(|game| game.id == id)
+            .ok_or("Game tidak ditemukan")?;
+        if enabled {
+            expected.validate()?;
+            if game.settings() != *expected {
+                return Err(
+                    "Pengaturan game berubah. Muat ulang sebelum mengaktifkan Auto Boost.".into(),
+                );
+            }
+            if game.executable_identity.is_empty() {
+                return Err("Executable tidak dapat diverifikasi untuk Auto Boost".into());
+            }
+            let profile = crate::db::profiles(conn)?
+                .into_iter()
+                .find(|profile| profile.id == game.profile_id)
+                .ok_or("Profil tidak ditemukan")?;
+            if !plans
+                .iter()
+                .any(|plan| Some(plan.guid.as_str()) == profile.scheme_guid.as_deref())
+            {
+                return Err(
+                    "Petakan profil ke skema daya yang tersedia sebelum mengaktifkan Auto Boost."
+                        .into(),
+                );
+            }
+        }
+        conn.execute(
+            "UPDATE registered_games SET auto_boost=?2,updated_at=?3 WHERE id=?1 AND archived=0",
+            params![id, enabled, Utc::now().to_rfc3339()],
+        )
+        .map_err(|error| error.to_string())?;
+        self.previous = None;
+        Ok(RegisteredGame {
+            auto_boost: enabled,
+            ..game
+        })
+    }
+}
+impl RegisteredGame {
+    pub fn settings(&self) -> Settings {
+        Settings {
+            display_name: self.display_name.clone(),
+            profile_id: self.profile_id.clone(),
+            restore_on_exit: self.restore_on_exit,
+            ac_only: self.ac_only,
+        }
+    }
+    pub fn validate_file(&self) -> Result<(), String> {
+        if windows::inspect(Path::new(&self.canonical_executable_path))? != self.executable()
+            || self.executable_identity.is_empty()
+        {
+            return Err("Executable tidak dapat diverifikasi untuk Auto Boost".into());
+        }
+        Ok(())
+    }
+}
+
 pub fn get_games(conn: &Connection) -> Result<Vec<RegisteredGame>, String> {
     let mut query=conn.prepare("SELECT id,display_name,canonical_executable_path,profile_id,auto_boost,restore_on_exit,ac_only,executable_identity FROM registered_games WHERE archived=0 ORDER BY created_at,id LIMIT 100").map_err(|error| error.to_string())?;
     let rows = query
@@ -333,6 +473,67 @@ pub fn get_games(conn: &Connection) -> Result<Vec<RegisteredGame>, String> {
         .map_err(|error| error.to_string())
 }
 
+#[derive(Clone, Serialize)]
+pub struct Session {
+    pub id: String,
+    pub game_name: String,
+    pub started_at: String,
+    pub ended_at: Option<String>,
+    pub status: String,
+    pub tuning_session_id: Option<String>,
+    pub profile_name: Option<String>,
+}
+pub fn sessions(conn: &Connection) -> Result<Vec<Session>, String> {
+    let mut query=conn.prepare("SELECT s.id,g.display_name,s.started_at,s.ended_at,s.status,s.tuning_session_id,p.name FROM gaming_sessions s JOIN registered_games g ON g.id=s.game_id LEFT JOIN tuning_sessions t ON t.id=s.tuning_session_id LEFT JOIN performance_profiles p ON p.id=t.profile_id ORDER BY s.started_at DESC,s.id DESC LIMIT 50").map_err(|error|error.to_string())?;
+    let rows = query
+        .query_map([], |row| {
+            Ok(Session {
+                id: row.get(0)?,
+                game_name: row.get(1)?,
+                started_at: row.get(2)?,
+                ended_at: row.get(3)?,
+                status: row.get(4)?,
+                tuning_session_id: row.get(5)?,
+                profile_name: row.get(6)?,
+            })
+        })
+        .map_err(|error| error.to_string())?;
+    rows.collect::<Result<Vec<_>, _>>()
+        .map_err(|error| error.to_string())
+}
+pub fn delete_session(conn: &mut Connection, id: &str) -> Result<(), String> {
+    Uuid::parse_str(id).map_err(|_| "Identitas sesi game tidak valid")?;
+    let tx = conn
+        .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)
+        .map_err(|error| error.to_string())?;
+    let allowed: bool = tx
+        .query_row(
+            "SELECT EXISTS(SELECT 1 FROM gaming_sessions WHERE id=?1 AND status!='active')",
+            [id],
+            |row| row.get(0),
+        )
+        .map_err(|error| error.to_string())?;
+    if !allowed {
+        return Err("Sesi game aktif tidak dapat dihapus".into());
+    }
+    tx.execute(
+        "DELETE FROM gaming_session_metrics WHERE session_id=?1",
+        [id],
+    )
+    .map_err(|error| error.to_string())?;
+    // Keep monitoring readings and all power recovery records. Only remove the
+    // selected completed summary and its optional derived metrics.
+    tx.execute(
+        "UPDATE hardware_samples SET gaming_session_id=NULL WHERE gaming_session_id=?1",
+        [id],
+    )
+    .map_err(|error| error.to_string())?;
+    tx.execute("DELETE FROM gaming_sessions WHERE id=?1", [id])
+        .map_err(|error| error.to_string())?;
+    tx.execute("DELETE FROM registered_games WHERE archived=1 AND NOT EXISTS(SELECT 1 FROM gaming_sessions WHERE game_id=registered_games.id)",[]).map_err(|error|error.to_string())?;
+    tx.commit().map_err(|error| error.to_string())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -350,8 +551,9 @@ mod tests {
             let root = project
                 .join("artifacts/games")
                 .join(Uuid::new_v4().to_string());
-            let first = root.join("one/ping.exe");
-            let second = root.join("two/ping.exe");
+            let name = format!("game-{}.exe", Uuid::new_v4());
+            let first = root.join("one").join(&name);
+            let second = root.join("two").join(&name);
             std::fs::create_dir_all(first.parent().unwrap()).unwrap();
             std::fs::create_dir_all(second.parent().unwrap()).unwrap();
             let root = std::fs::canonicalize(root).unwrap();
@@ -414,6 +616,114 @@ mod tests {
         fn drop(&mut self) {
             self.stop();
         }
+    }
+    #[test]
+    fn opt_in_requires_current_settings_and_mapping_and_armed_policy_edits_require_disarming() {
+        let mut fixture = Fixture::new();
+        let game = fixture.register();
+        let target = "8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c";
+        let plans = vec![crate::models::PowerPlan {
+            guid: target.into(),
+            name: "Test plan".into(),
+            active: false,
+        }];
+        let mut conn = fixture.database.lock().unwrap();
+        assert!(fixture
+            .registry
+            .set_auto(&conn, &game.id, true, &game.settings(), &plans)
+            .is_err());
+        crate::db::save_profile_mapping(&mut conn, "gaming", target, false).unwrap();
+        let mut changed = game.settings();
+        changed.profile_id = "saving".into();
+        assert!(fixture
+            .registry
+            .set_auto(&conn, &game.id, true, &changed, &plans)
+            .is_err());
+        assert!(!get_games(&conn).unwrap()[0].auto_boost);
+        assert!(
+            fixture
+                .registry
+                .set_auto(&conn, &game.id, true, &game.settings(), &plans)
+                .unwrap()
+                .auto_boost
+        );
+        changed = game.settings();
+        changed.ac_only = false;
+        assert!(fixture.registry.update(&conn, &game.id, changed).is_err());
+        let mut renamed = game.settings();
+        renamed.display_name = "Renamed".into();
+        let renamed = fixture.registry.update(&conn, &game.id, renamed).unwrap();
+        std::fs::remove_file(&fixture.first).unwrap();
+        assert!(renamed.validate_file().is_err());
+        assert!(
+            !fixture
+                .registry
+                .set_auto(&conn, &game.id, false, &renamed.settings(), &[])
+                .unwrap()
+                .auto_boost
+        );
+    }
+    #[test]
+    fn held_observation_rechecks_process_liveness_without_reopening_executables() {
+        let mut fixture = Fixture::new();
+        let game = fixture.register();
+        let mut child = Child::start(&fixture.first);
+        let observation = fixture.registry.observe(vec![game.clone()]).unwrap();
+        assert_eq!(
+            observation.view(vec![game.clone()]).games[0].process_count,
+            1
+        );
+        child.stop();
+        let after = observation.view(vec![game]);
+        assert_eq!(after.games[0].process_count, 0);
+        assert_eq!(after.games[0].status, "unverified");
+    }
+    #[test]
+    fn deleting_completed_history_preserves_samples_active_sessions_and_power_recovery() {
+        let mut fixture = Fixture::new();
+        let game = fixture.register();
+        let completed = Uuid::new_v4().to_string();
+        let active = Uuid::new_v4().to_string();
+        let tuning = Uuid::new_v4().to_string();
+        let mut conn = fixture.database.lock().unwrap();
+        conn.execute("INSERT INTO tuning_sessions(id,profile_id,previous_scheme_guid,applied_scheme_guid,trigger,status,started_at) VALUES(?1,'gaming','previous','applied','auto_game','conflict','2026-10-06T00:00:00Z')",[&tuning]).unwrap();
+        for (id, status) in [(&completed, "completed"), (&active, "active")] {
+            conn.execute("INSERT INTO gaming_sessions(id,game_id,started_at,status,tuning_session_id) VALUES(?1,?2,'2026-10-06T00:00:00Z',?3,?4)",params![id,game.id,status,tuning]).unwrap();
+        }
+        conn.execute_batch("INSERT INTO devices(id,created_at,updated_at) VALUES('history-device','now','now');INSERT INTO hardware_sensors(id,device_id,provider,sensor_key,sensor_name) VALUES('history-sensor','history-device','test','cpu','CPU');").unwrap();
+        conn.execute("INSERT INTO hardware_samples(sensor_id,gaming_session_id,recorded_at,value) VALUES('history-sensor',?1,'2026-10-06T00:00:00Z',0)",[&completed]).unwrap();
+        conn.execute(
+            "INSERT INTO gaming_session_metrics(id,session_id) VALUES(?1,?2)",
+            params![Uuid::new_v4().to_string(), completed],
+        )
+        .unwrap();
+        assert!(delete_session(&mut conn, &active).is_err());
+        delete_session(&mut conn, &completed).unwrap();
+        assert_eq!(sessions(&conn).unwrap().len(), 1);
+        let sample: (Option<String>, f64) = conn
+            .query_row(
+                "SELECT gaming_session_id,value FROM hardware_samples",
+                [],
+                |row| Ok((row.get(0)?, row.get(1)?)),
+            )
+            .unwrap();
+        assert_eq!(sample, (None, 0.0));
+        assert_eq!(crate::db::unfinished_sessions(&conn).unwrap()[0].id, tuning);
+        assert_eq!(
+            conn.query_row("SELECT COUNT(*) FROM gaming_session_metrics", [], |row| row
+                .get::<_, usize>(0))
+                .unwrap(),
+            0
+        );
+        assert!(conn
+            .prepare("PRAGMA foreign_key_check")
+            .unwrap()
+            .query([])
+            .unwrap()
+            .next()
+            .unwrap()
+            .is_none());
+        assert!(fixture.first.is_file());
     }
     #[test]
     fn registration_requires_native_unexpired_unchanged_selection_and_valid_settings() {

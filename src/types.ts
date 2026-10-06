@@ -49,3 +49,6 @@ export type HistoryPoint = { recorded_at: string; value: number };
 
 export type ProcessEntry = { pid: number; started_at: number; name: string; executable: string | null; cpu_percent: number | null; memory_bytes: number | null };
 export type ProcessSnapshot = { recorded_at: string; total_count: number; truncated: boolean; processes: ProcessEntry[] };
+
+export type AutoBoostStatus = { mode: 'idle' | 'active' | 'waiting_for_ac' | 'unmapped' | 'recovery_required' | 'suspended' | 'retained' | 'error'; tuning_session_id: string | null; profile_id: string | null; relevant_games: number; reason: string | null; error: string | null; updated_at: string; discovery_status: 'waiting' | 'ready' | 'stale' | 'error'; discovery_message: string | null };
+export type GamingSession = { id: string; game_name: string; started_at: string; ended_at: string | null; status: 'active' | 'completed' | 'removed' | 'interrupted' | 'app_closed'; tuning_session_id: string | null; profile_name: string | null };
