@@ -1,0 +1,32 @@
+﻿[
+    {
+        "Url":  "https://codeload.github.com/LibreHardwareMonitor/LibreHardwareMonitor/zip/3d331e3370efb858411f19511373eff65a218701",
+        "Name":  "LibreHardwareMonitor-source.zip",
+        "Sha256":  "5A83EE3F504A85EFB6AFEE4112447E60CACA1B7EC2E2D71F4651570B8B9B4230",
+        "Bytes":  3955089
+    },
+    {
+        "Url":  "https://codeload.github.com/namazso/PawnIO.Modules/zip/refs/tags/0.1.6",
+        "Name":  "PawnIO.Modules-source.zip",
+        "Sha256":  "665B2F7A028F8A317BC35CD6FBF64986115909239019FF2D30D19260D7DD0982",
+        "Bytes":  1002367
+    },
+    {
+        "Url":  "https://codeload.github.com/Blacktempel/DiskInfoToolkit/zip/25319eae5781e75bcf141e844ceab2afe94d40ea",
+        "Name":  "DiskInfoToolkit-source.zip",
+        "Sha256":  "2DF4F067370FC3BB338CE60BDEE12879C67EE5377D72E6CC8D79167001039102",
+        "Bytes":  993083
+    },
+    {
+        "Url":  "https://codeload.github.com/Blacktempel/BlackSharp/zip/c70b735c6cec123ee8a046ac4a0bc6c606f52cf0",
+        "Name":  "BlackSharp-source.zip",
+        "Sha256":  "AB50D38C8CFEC1CC041D924730BC417B6D9C81B5B0FF542572A03AD9163CDC1E",
+        "Bytes":  133878
+    },
+    {
+        "Url":  "https://codeload.github.com/Blacktempel/RAMSPDToolkit/zip/3b47b960e0830fef344624ad5e389675d5f0a1ce",
+        "Name":  "RAMSPDToolkit-source.zip",
+        "Sha256":  "A1A0B3C3E94FEA2D88A70ABB74A08776A7602866B1E2D6EA6C3AB262DDA925BA",
+        "Bytes":  379926
+    }
+]

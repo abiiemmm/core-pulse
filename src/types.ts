@@ -1,0 +1,46 @@
+export type Availability = 'supported' | 'unsupported' | 'requires_permission' | 'unknown';
+export type Metric = { value: number | null; unit: string; source: string; status: Availability; recorded_at: string };
+export type HardwareSnapshot = {
+  recorded_at: string;
+  cpu_usage: Metric;
+  cpu_temperature: Metric;
+  gpu_usage: Metric;
+  gpu_temperature: Metric;
+  ram_usage: Metric;
+  ram_used_gb: Metric;
+  ram_total_gb: Metric;
+  disk_used_gb: Metric;
+  disk_total_gb: Metric;
+  network_down_kbps: Metric;
+  network_up_kbps: Metric;
+  cpu_name: string;
+  gpu_name: string;
+  disk_name: string;
+  power_source: string;
+};
+export type DeviceInfo = {
+  device_name: string;
+  operating_system: string;
+  cpu_model: string;
+  cpu_cores: number;
+  ram_total_bytes: number;
+  gpu_adapters: string[];
+  power_source: string;
+};
+export type Capability = { capability_key: string; status: Availability; reason: string; detected_at: string };
+export type PowerPlan = { guid: string; name: string; active: boolean };
+export type PerformanceProfile = { id: string; name: string; scheme_guid: string | null; ac_only: boolean };
+export type TuningSession = { id: string; profile_id: string; previous_guid: string; applied_guid: string; status: string; started_at: string; error?: string | null };
+export type CleanerScan = { plan_id: string; expires_at: string; category: string; estimated_bytes: number; eligible_count: number; skipped_count: number; warnings: string[] };
+export type PersistenceStatus = { status: 'waiting' | 'healthy' | 'degraded' | 'demo'; message: string | null; last_saved_at: string | null; dropped_samples: number; updated_at: string };
+export type CleanupProgress = { plan_id: string; processed_count: number; total_count: number; deleted_count: number; skipped_count: number; error_count: number; recovered_bytes: number; status: string; timestamp: string };
+export type CleaningResult = { id: string; category: string; estimated_bytes: number; recovered_bytes: number; deleted_count: number; skipped_count: number; error_count: number; finished_at: string; status: string };
+export type AppSettings = { refresh_seconds: 1 | 2 | 5; theme: 'dark' | 'light' | 'system'; language: 'id' | 'en' | 'es'; history_retention_hours: number; monitor_in_background: boolean; gpu_adapter_id: string | null };
+export type SensorAdapter = { id: string; name: string; kind: 'cpu' | 'gpu'; temperature_available: boolean; load_available: boolean };
+export type SensorInventory = { status: 'waiting' | 'ready' | 'degraded' | 'demo'; message: string; provider: string; elevated: boolean; restart_count: number; updated_at: string; devices: SensorAdapter[] };
+export type AnalyticsPoint = { sensor_key: string; recorded_at: string; average: number; minimum: number; maximum: number; sample_count: number };
+export type AnalyticsReport = { from: string; to: string; bucket_seconds: number; points: AnalyticsPoint[] };
+export type HistoryPoint = { recorded_at: string; value: number };
+
+export type ProcessEntry = { pid: number; started_at: number; name: string; executable: string | null; cpu_percent: number | null; memory_bytes: number | null };
+export type ProcessSnapshot = { recorded_at: string; total_count: number; truncated: boolean; processes: ProcessEntry[] };

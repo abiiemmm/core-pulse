@@ -1,0 +1,29 @@
+{
+  "name": "core-pulse",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "check": "node scripts/check-analytics.mjs && python tests/check_schema.py && python tests/check_contract.py && cargo test --locked --manifest-path src-tauri/Cargo.toml",
+    "preview": "vite preview",
+    "tauri:dev": "npm run sensors:build && tauri dev",
+    "tauri:build": "npm run sensors:build && tauri build",
+    "sensors:build": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-sensors.ps1"
+  },
+  "dependencies": {
+    "lucide-react": "1.33.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.0.0",
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.5",
+    "tailwindcss": "4.3.3",
+    "typescript": "6.0.3",
+    "vite": "7.3.6"
+  }
+}

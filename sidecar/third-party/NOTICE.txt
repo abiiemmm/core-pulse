@@ -1,0 +1,35 @@
+Core Pulse sensor host third-party notices
+
+LibreHardwareMonitorLib 0.9.6, DiskInfoToolkit 1.1.2,
+BlackSharp.Core 1.0.7, and RAMSPDToolkit-NDD 1.4.2 are distributed
+under the Mozilla Public License 2.0. Their original corresponding
+source archives, including build files and copyright notices, accompany
+this installer under sensors/third-party/source. The precise upstream
+revisions and archive SHA-256 hashes are listed in source-manifest.json.
+The libraries are unmodified. MPL-2.0.txt contains the license.
+
+LibreHardwareMonitor includes PawnIO.Modules 0.1.6 under LGPL 2.1.
+LGPL-2.1.txt and the corresponding upstream source archive are included.
+Core Pulse does not install a PawnIO driver. The host uses the libraries
+as separate DLLs. These DLLs can be replaced with compatible modified
+versions. CorePulse.SensorHost-source contains the host sources and
+locked dependencies to rebuild against modified libraries. No additional
+terms restrict the modification of these components or reverse engineering
+for debugging modifications as permitted by their respective licenses.
+
+HidSharp 2.6.4: the original Apache 2.0 license and copyright notices
+are preserved in its package notice folder.
+Mono.Posix.NETStandard 1.0.0: the upstream Mono license linked by the
+package is included as Mono-LICENSE.txt. The original package metadata
+and copyright notices are preserved in its notice folder.
+.NET and System.* components: MIT license and original third-party
+notices are preserved in the corresponding package folders and
+dotnet-LICENSE.TXT / dotnet-THIRD-PARTY-NOTICES.TXT.
+
+Rebuilding the host: install the SDK specified in global.json, place the
+source folder in a writable directory, run dotnet restore --locked-mode,
+then dotnet publish -c Release. To use a modified LHM library, replace its
+PackageReference with a ProjectReference to the accompanying source;
+restore and publish again. Compatible output can replace the DLLs in the
+sensors directory without changing Core Pulse's frontend. Protocol version
+1 and read-only settings must be retained for the desktop integration.

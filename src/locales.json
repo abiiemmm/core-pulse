@@ -1,0 +1,1598 @@
+{
+  "Ringkasan": [
+    "Overview",
+    "Resumen"
+  ],
+  "Monitor": [
+    "Monitor",
+    "Monitor"
+  ],
+  "Analitik": [
+    "Analytics",
+    "Analítica"
+  ],
+  "Profil daya": [
+    "Power profiles",
+    "Perfiles de energía"
+  ],
+  "Pembersihan": [
+    "Cleanup",
+    "Limpieza"
+  ],
+  "Perangkat": [
+    "Device",
+    "Dispositivo"
+  ],
+  "Pengaturan": [
+    "Settings",
+    "Configuración"
+  ],
+  "Pantau": [
+    "Observe",
+    "Supervisión"
+  ],
+  "Kelola": [
+    "Manage",
+    "Gestión"
+  ],
+  "Aplikasi": [
+    "Application",
+    "Aplicación"
+  ],
+  "PERANGKAT LOKAL": [
+    "LOCAL DEVICE",
+    "DISPOSITIVO LOCAL"
+  ],
+  "PERANGKAT INI": [
+    "THIS DEVICE",
+    "ESTE DISPOSITIVO"
+  ],
+  "Buka halaman…": [
+    "Go to page…",
+    "Abrir página…"
+  ],
+  "Buka halaman atau tindakan (Ctrl+K)": [
+    "Open page or action (Ctrl+K)",
+    "Abrir página o acción (Ctrl+K)"
+  ],
+  "Buka halaman atau tindakan": [
+    "Open page or action",
+    "Abrir página o acción"
+  ],
+  "Cari halaman atau tindakan": [
+    "Search pages or actions",
+    "Buscar páginas o acciones"
+  ],
+  "Ketik nama halaman atau tindakan…": [
+    "Search for a page or action…",
+    "Buscar una página o acción…"
+  ],
+  "Tidak ada hasil untuk “": [
+    "No results for “",
+    "Sin resultados para “"
+  ],
+  "↑ ↓ pilih": [
+    "↑ ↓ select",
+    "↑ ↓ seleccionar"
+  ],
+  "↵ buka": [
+    "↵ open",
+    "↵ abrir"
+  ],
+  "Navigasi utama": [
+    "Main navigation",
+    "Navegación principal"
+  ],
+  "Ringkas navigasi": [
+    "Collapse navigation",
+    "Contraer navegación"
+  ],
+  "Perluas navigasi": [
+    "Expand navigation",
+    "Expandir navegación"
+  ],
+  "Pengaturan · Ctrl+7": [
+    "Settings · Ctrl+7",
+    "Configuración · Ctrl+7"
+  ],
+  "Data tersimpan di perangkat": [
+    "Data stored on this device",
+    "Datos guardados en este dispositivo"
+  ],
+  "Lokal · tanpa cloud": [
+    "Local · no cloud",
+    "Local · sin nube"
+  ],
+  "Data simulasi": [
+    "Simulated data",
+    "Datos simulados"
+  ],
+  "Perangkat lokal": [
+    "Local device",
+    "Dispositivo local"
+  ],
+  "Menghubungkan": [
+    "Connecting",
+    "Conectando"
+  ],
+  "Menghubungkan perangkat": [
+    "Connecting to device",
+    "Conectando al dispositivo"
+  ],
+  "Baru diperbarui": [
+    "Just updated",
+    "Recién actualizado"
+  ],
+  "{0} dtk lalu": [
+    "{0} sec ago",
+    "Hace {0} s"
+  ],
+  "Interval": [
+    "Interval",
+    "Intervalo"
+  ],
+  "dtk": [
+    "sec",
+    "s"
+  ],
+  "Pratinjau dengan data simulasi. Tindakan sistem tersedia di aplikasi desktop.": [
+    "Preview with simulated data. System actions are available in the desktop app.",
+    "Vista previa con datos simulados. Las acciones del sistema están disponibles en la aplicación de escritorio."
+  ],
+  "Monitoring aktif": [
+    "Monitoring active",
+    "Supervisión activa"
+  ],
+  "Data tertunda": [
+    "Data delayed",
+    "Datos retrasados"
+  ],
+  "Dijeda": [
+    "Paused",
+    "En pausa"
+  ],
+  "Jeda monitoring": [
+    "Pause monitoring",
+    "Pausar supervisión"
+  ],
+  "Lanjutkan monitoring": [
+    "Resume monitoring",
+    "Reanudar supervisión"
+  ],
+  "Lanjutkan": [
+    "Resume",
+    "Reanudar"
+  ],
+  "Satu pandangan untuk kondisi perangkat Anda.": [
+    "Your device status at a glance.",
+    "El estado de su dispositivo de un vistazo."
+  ],
+  "{0} logical core": [
+    "{0} logical cores",
+    "{0} núcleos lógicos"
+  ],
+  "Mendeteksi hardware": [
+    "Detecting hardware",
+    "Detectando hardware"
+  ],
+  "Detail perangkat": [
+    "Device details",
+    "Detalles del dispositivo"
+  ],
+  "Mendeteksi prosesor": [
+    "Detecting processor",
+    "Detectando procesador"
+  ],
+  "Mendeteksi grafis": [
+    "Detecting graphics",
+    "Detectando gráficos"
+  ],
+  "Memori": [
+    "Memory",
+    "Memoria"
+  ],
+  "Penyimpanan": [
+    "Storage",
+    "Almacenamiento"
+  ],
+  "{0} GB tersedia": [
+    "{0} GB available",
+    "{0} GB disponibles"
+  ],
+  "Mendeteksi kapasitas": [
+    "Detecting capacity",
+    "Detectando capacidad"
+  ],
+  "Aktivitas sumber daya": [
+    "Resource activity",
+    "Actividad de recursos"
+  ],
+  "Buka monitor": [
+    "Open monitor",
+    "Abrir monitor"
+  ],
+  "Skema Windows aktif": [
+    "Active Windows plan",
+    "Plan activo de Windows"
+  ],
+  "Belum terdeteksi": [
+    "Not detected",
+    "No detectado"
+  ],
+  "Sesi tuning aktif": [
+    "Tuning session active",
+    "Sesión de ajuste activa"
+  ],
+  "Perlu ditinjau": [
+    "Needs review",
+    "Requiere revisión"
+  ],
+  "Tanpa sesi tuning": [
+    "No tuning session",
+    "Sin sesión de ajuste"
+  ],
+  "Sumber daya": [
+    "Resource",
+    "Recurso"
+  ],
+  "Kelola profil": [
+    "Manage profiles",
+    "Gestionar perfiles"
+  ],
+  "Pembacaan tambahan": [
+    "Additional readings",
+    "Lecturas adicionales"
+  ],
+  "Suhu dan jaringan saat ini": [
+    "Current temperature and network activity",
+    "Temperatura y actividad de red actuales"
+  ],
+  "Suhu CPU": [
+    "CPU temperature",
+    "Temperatura de CPU"
+  ],
+  "Suhu GPU": [
+    "GPU temperature",
+    "Temperatura de GPU"
+  ],
+  "Unduh": [
+    "Download",
+    "Descarga"
+  ],
+  "Unggah": [
+    "Upload",
+    "Subida"
+  ],
+  "Pembacaan hardware langsung, dengan sumber data yang jelas.": [
+    "Live hardware readings with clearly identified sources.",
+    "Lecturas de hardware en directo con fuentes identificadas."
+  ],
+  "Memori sistem": [
+    "System memory",
+    "Memoria del sistema"
+  ],
+  "Detail {0}": [
+    "{0} details",
+    "Detalles de {0}"
+  ],
+  "Mendeteksi perangkat": [
+    "Detecting device",
+    "Detectando dispositivo"
+  ],
+  "Menunggu sumber data": [
+    "Waiting for data source",
+    "Esperando fuente de datos"
+  ],
+  "Rata rata": [
+    "Average",
+    "Promedio"
+  ],
+  "Terendah": [
+    "Minimum",
+    "Mínimo"
+  ],
+  "Tertinggi": [
+    "Maximum",
+    "Máximo"
+  ],
+  "Sampel valid": [
+    "Valid samples",
+    "Muestras válidas"
+  ],
+  "Komputasi": [
+    "Computing",
+    "Procesamiento"
+  ],
+  "Penggunaan CPU": [
+    "CPU usage",
+    "Uso de CPU"
+  ],
+  "Penggunaan GPU": [
+    "GPU usage",
+    "Uso de GPU"
+  ],
+  "Kapasitas & jaringan": [
+    "Capacity & network",
+    "Capacidad y red"
+  ],
+  "Memori terpakai": [
+    "Memory used",
+    "Memoria utilizada"
+  ],
+  "Total {0}": [
+    "Total {0}",
+    "Total {0}"
+  ],
+  "{0} · total {1}": [
+    "{0} · total {1}",
+    "{0} · total {1}"
+  ],
+  "Volume sistem": [
+    "System volume",
+    "Volumen del sistema"
+  ],
+  "Sensor yang tidak didukung ditampilkan sebagai tidak tersedia. Angka nol hanya berarti penggunaan yang terukur.": [
+    "Unsupported sensors are shown as unavailable. Zero always represents a measured value.",
+    "Los sensores no compatibles se muestran como no disponibles. Cero siempre representa un valor medido."
+  ],
+  "Atur penggunaan daya melalui skema Windows yang tersedia.": [
+    "Manage power using the Windows plans available on this device.",
+    "Gestione la energía con los planes de Windows disponibles."
+  ],
+  "Skema aktif": [
+    "Active plan",
+    "Plan activo"
+  ],
+  "Sesi tuning sedang aktif": [
+    "A tuning session is active",
+    "Hay una sesión de ajuste activa"
+  ],
+  "Sesi tuning perlu ditinjau": [
+    "Tuning session needs review",
+    "La sesión de ajuste requiere revisión"
+  ],
+  "Skema sebelumnya:": [
+    "Previous plan:",
+    "Plan anterior:"
+  ],
+  "Pulihkan": [
+    "Restore",
+    "Restaurar"
+  ],
+  "Profil Anda": [
+    "Your profiles",
+    "Sus perfiles"
+  ],
+  "Untuk penggunaan sehari hari.": [
+    "For everyday use.",
+    "Para uso diario."
+  ],
+  "Prioritaskan performa saat dibutuhkan.": [
+    "Prioritize performance when needed.",
+    "Priorice el rendimiento cuando lo necesite."
+  ],
+  "Kurangi konsumsi daya perangkat.": [
+    "Reduce device power consumption.",
+    "Reduzca el consumo de energía."
+  ],
+  "Profil perangkat": [
+    "Device profile",
+    "Perfil del dispositivo"
+  ],
+  "Profil belum tersedia": [
+    "Profiles unavailable",
+    "Perfiles no disponibles"
+  ],
+  "Muat ulang informasi perangkat untuk membaca profil.": [
+    "Refresh device information to load profiles.",
+    "Actualice la información del dispositivo para cargar los perfiles."
+  ],
+  "Setiap profil dipetakan ke satu skema daya yang tersedia di PC ini.": [
+    "Each profile maps to a power plan available on this PC.",
+    "Cada perfil corresponde a un plan de energía disponible en este PC."
+  ],
+  "Pilih profil": [
+    "Select profile",
+    "Seleccione un perfil"
+  ],
+  "Pemetaan & aktivasi": [
+    "Mapping & activation",
+    "Asignación y activación"
+  ],
+  "Skema daya Windows": [
+    "Windows power plan",
+    "Plan de energía de Windows"
+  ],
+  "Pilih skema daya…": [
+    "Select a power plan…",
+    "Seleccione un plan de energía…"
+  ],
+  " (aktif)": [
+    " (active)",
+    " (activo)"
+  ],
+  "Hanya skema yang ditemukan di Windows dapat digunakan.": [
+    "Only plans detected in Windows can be used.",
+    "Solo se pueden usar planes detectados en Windows."
+  ],
+  "Hanya saat terhubung ke listrik": [
+    "Only when plugged in",
+    "Solo conectado a la corriente"
+  ],
+  "Profil dipulihkan saat perangkat beralih ke baterai.": [
+    "The previous plan is restored when switching to battery.",
+    "El plan anterior se restaura al cambiar a batería."
+  ],
+  "Hanya saat daya AC": [
+    "Only on AC power",
+    "Solo con corriente alterna"
+  ],
+  "Terapkan profil": [
+    "Apply profile",
+    "Aplicar perfil"
+  ],
+  "Pulihkan sesi saat ini sebelum menerapkan profil lain.": [
+    "Restore the current session before applying another profile.",
+    "Restaure la sesión actual antes de aplicar otro perfil."
+  ],
+  "Pilih skema untuk mengaktifkan profil ini.": [
+    "Select a plan to activate this profile.",
+    "Seleccione un plan para activar este perfil."
+  ],
+  "Skema sebelumnya disimpan agar dapat dipulihkan.": [
+    "The previous plan is saved for restoration.",
+    "El plan anterior se guarda para poder restaurarlo."
+  ],
+  "Skema yang tersedia": [
+    "Available plans",
+    "Planes disponibles"
+  ],
+  "Muat ulang": [
+    "Refresh",
+    "Actualizar"
+  ],
+  "Skema belum ditemukan": [
+    "No plans found",
+    "No se encontraron planes"
+  ],
+  "Deteksi ulang perangkat untuk memeriksa skema Windows.": [
+    "Detect hardware again to check Windows plans.",
+    "Detecte el dispositivo de nuevo para comprobar los planes de Windows."
+  ],
+  "Tinjau file sementara sebelum mengosongkan ruang.": [
+    "Review temporary files before freeing up space.",
+    "Revise los archivos temporales antes de liberar espacio."
+  ],
+  "Tahapan pembersihan": [
+    "Cleanup steps",
+    "Pasos de limpieza"
+  ],
+  "Pindai file": [
+    "Scan files",
+    "Analizar archivos"
+  ],
+  "Tinjau hasil": [
+    "Review results",
+    "Revisar resultados"
+  ],
+  "Konfirmasi": [
+    "Confirm",
+    "Confirmar"
+  ],
+  "File sementara pengguna": [
+    "User temporary files",
+    "Archivos temporales del usuario"
+  ],
+  "Temukan file lama di folder temp akun Anda. Pemindaian tidak menghapus file.": [
+    "Find old files in your account's temp folder. Scanning does not delete files.",
+    "Busque archivos antiguos en la carpeta temporal de su cuenta. El análisis no elimina archivos."
+  ],
+  "Lebih lama dari 24 jam": [
+    "Older than 24 hours",
+    "Más de 24 horas de antigüedad"
+  ],
+  "File aktif dan tidak aman dilewati": [
+    "Active and unsafe files are skipped",
+    "Los archivos activos y no seguros se omiten"
+  ],
+  "Dokumen pribadi tidak termasuk": [
+    "Personal documents are excluded",
+    "Los documentos personales quedan excluidos"
+  ],
+  "Memindai file…": [
+    "Scanning files…",
+    "Analizando archivos…"
+  ],
+  "Pindai ulang": [
+    "Scan again",
+    "Volver a analizar"
+  ],
+  "Pindai sekarang": [
+    "Scan now",
+    "Analizar ahora"
+  ],
+  "Hasil pemindaian": [
+    "Scan results",
+    "Resultados del análisis"
+  ],
+  "Memeriksa file sementara": [
+    "Checking temporary files",
+    "Comprobando archivos temporales"
+  ],
+  "Ukuran dan kondisi file sedang dibaca.": [
+    "Reading file sizes and conditions.",
+    "Leyendo el tamaño y estado de los archivos."
+  ],
+  "Perkiraan ruang yang dapat dibersihkan": [
+    "Estimated recoverable space",
+    "Espacio recuperable estimado"
+  ],
+  "File memenuhi syarat": [
+    "Eligible files",
+    "Archivos aptos"
+  ],
+  "File dilewati": [
+    "Skipped files",
+    "Archivos omitidos"
+  ],
+  "Hasil kedaluwarsa. Pindai ulang untuk melanjutkan.": [
+    "Results expired. Scan again to continue.",
+    "Los resultados caducaron. Repita el análisis para continuar."
+  ],
+  "Berlaku sampai {0}": [
+    "Valid until {0}",
+    "Válido hasta {0}"
+  ],
+  "Membersihkan…": [
+    "Cleaning…",
+    "Limpiando…"
+  ],
+  "Tinjau & bersihkan": [
+    "Review & clean",
+    "Revisar y limpiar"
+  ],
+  "Batalkan sisa pembersihan": [
+    "Cancel remaining cleanup",
+    "Cancelar el resto de la limpieza"
+  ],
+  "Siap untuk dipindai": [
+    "Ready to scan",
+    "Listo para analizar"
+  ],
+  "Hasil dan estimasi ruang akan muncul di sini. Anda memutuskan kapan file dihapus.": [
+    "Results and space estimates appear here. You decide when files are deleted.",
+    "Aquí aparecerán los resultados y el espacio estimado. Usted decide cuándo eliminar los archivos."
+  ],
+  "Riwayat pembersihan": [
+    "Cleanup history",
+    "Historial de limpieza"
+  ],
+  "Hasil berdasarkan file yang berhasil dihapus.": [
+    "Results reflect files successfully deleted.",
+    "Los resultados reflejan los archivos eliminados correctamente."
+  ],
+  "Waktu": [
+    "Time",
+    "Hora"
+  ],
+  "Dibersihkan": [
+    "Recovered",
+    "Recuperado"
+  ],
+  "Dihapus / dilewati / gagal": [
+    "Deleted / skipped / failed",
+    "Eliminados / omitidos / fallidos"
+  ],
+  "Status": [
+    "Status",
+    "Estado"
+  ],
+  "Belum ada pembersihan": [
+    "No cleanup yet",
+    "Sin limpiezas todavía"
+  ],
+  "Riwayat akan tampil setelah Anda menjalankan pembersihan pertama.": [
+    "History appears after your first cleanup.",
+    "El historial aparecerá después de la primera limpieza."
+  ],
+  "Identitas hardware dan kemampuan yang terdeteksi.": [
+    "Hardware identity and detected capabilities.",
+    "Identidad del hardware y capacidades detectadas."
+  ],
+  "Deteksi ulang": [
+    "Detect again",
+    "Detectar de nuevo"
+  ],
+  "Deteksi ulang perangkat": [
+    "Detect device again",
+    "Detectar dispositivo de nuevo"
+  ],
+  "Hardware utama": [
+    "Core hardware",
+    "Hardware principal"
+  ],
+  "Prosesor": [
+    "Processor",
+    "Procesador"
+  ],
+  "Logical core": [
+    "Logical cores",
+    "Núcleos lógicos"
+  ],
+  "Memori terpasang": [
+    "Installed memory",
+    "Memoria instalada"
+  ],
+  "Grafis & penyimpanan": [
+    "Graphics & storage",
+    "Gráficos y almacenamiento"
+  ],
+  "Adapter grafis": [
+    "Graphics adapter",
+    "Adaptador gráfico"
+  ],
+  "Adapter {0}": [
+    "Adapter {0}",
+    "Adaptador {0}"
+  ],
+  "Penggunaan disk": [
+    "Disk usage",
+    "Uso del disco"
+  ],
+  "Kapasitas belum tersedia": [
+    "Capacity unavailable",
+    "Capacidad no disponible"
+  ],
+  "Kemampuan perangkat": [
+    "Device capabilities",
+    "Capacidades del dispositivo"
+  ],
+  "Ketersediaan fitur mengikuti sensor dan akses perangkat.": [
+    "Feature availability depends on sensors and device access.",
+    "La disponibilidad depende de los sensores y del acceso al dispositivo."
+  ],
+  "Filter kemampuan": [
+    "Filter capabilities",
+    "Filtrar capacidades"
+  ],
+  "Semua ({0})": [
+    "All ({0})",
+    "Todas ({0})"
+  ],
+  "Perlu ditinjau ({0})": [
+    "Needs review ({0})",
+    "Requieren revisión ({0})"
+  ],
+  "Semua kemampuan tersedia": [
+    "All capabilities available",
+    "Todas las capacidades disponibles"
+  ],
+  "Menunggu hasil deteksi": [
+    "Waiting for detection",
+    "Esperando detección"
+  ],
+  "Tidak ada kemampuan yang perlu ditinjau.": [
+    "No capabilities need review.",
+    "Ninguna capacidad requiere revisión."
+  ],
+  "Informasi kemampuan akan muncul setelah perangkat terdeteksi.": [
+    "Capabilities appear once the device is detected.",
+    "Las capacidades aparecerán cuando se detecte el dispositivo."
+  ],
+  "Penggunaan memori": [
+    "Memory usage",
+    "Uso de memoria"
+  ],
+  "Kapasitas penyimpanan": [
+    "Storage capacity",
+    "Capacidad de almacenamiento"
+  ],
+  "Aktivitas jaringan": [
+    "Network activity",
+    "Actividad de red"
+  ],
+  "Profil daya Windows": [
+    "Windows power profiles",
+    "Perfiles de energía de Windows"
+  ],
+  "Pembersihan file sementara": [
+    "Temporary file cleanup",
+    "Limpieza de archivos temporales"
+  ],
+  "Sesuaikan tampilan, monitoring, dan penyimpanan data.": [
+    "Customize appearance, monitoring, and data storage.",
+    "Personalice la apariencia, supervisión y almacenamiento de datos."
+  ],
+  "Tampilan": [
+    "Appearance",
+    "Apariencia"
+  ],
+  "Pilih suasana ruang kerja Anda.": [
+    "Choose your workspace appearance.",
+    "Elija la apariencia de su espacio de trabajo."
+  ],
+  "Tema aplikasi": [
+    "Application theme",
+    "Tema de la aplicación"
+  ],
+  "Gelap": [
+    "Dark",
+    "Oscuro"
+  ],
+  "Terang": [
+    "Light",
+    "Claro"
+  ],
+  "Ikuti sistem": [
+    "System",
+    "Sistema"
+  ],
+  "Monitoring": [
+    "Monitoring",
+    "Supervisión"
+  ],
+  "Atur kapan dan seberapa sering data dibaca.": [
+    "Choose when and how often data is collected.",
+    "Elija cuándo y con qué frecuencia se recogen los datos."
+  ],
+  "Interval pembaruan": [
+    "Refresh interval",
+    "Intervalo de actualización"
+  ],
+  "Jeda antar pembacaan hardware.": [
+    "Time between hardware readings.",
+    "Tiempo entre lecturas de hardware."
+  ],
+  "1 dtk": [
+    "1 sec",
+    "1 s"
+  ],
+  "2 dtk": [
+    "2 sec",
+    "2 s"
+  ],
+  "5 dtk": [
+    "5 sec",
+    "5 s"
+  ],
+  "Monitoring di latar belakang": [
+    "Background monitoring",
+    "Supervisión en segundo plano"
+  ],
+  "Terus ambil data saat jendela diminimalkan.": [
+    "Keep collecting data when the window is minimized.",
+    "Seguir recogiendo datos con la ventana minimizada."
+  ],
+  "Data lokal": [
+    "Local data",
+    "Datos locales"
+  ],
+  "Kendalikan riwayat yang tersimpan.": [
+    "Control your stored history.",
+    "Controle el historial guardado."
+  ],
+  "Simpan sampel mentah": [
+    "Keep raw samples",
+    "Conservar muestras originales"
+  ],
+  "Data yang lebih lama diringkas secara berkala.": [
+    "Older data is periodically summarized.",
+    "Los datos antiguos se resumen periódicamente."
+  ],
+  "Retensi sampel mentah": [
+    "Raw sample retention",
+    "Retención de muestras originales"
+  ],
+  "6 jam": [
+    "6 hours",
+    "6 horas"
+  ],
+  "24 jam": [
+    "24 hours",
+    "24 horas"
+  ],
+  "3 hari": [
+    "3 days",
+    "3 días"
+  ],
+  "Hapus riwayat monitoring": [
+    "Delete monitoring history",
+    "Eliminar historial de supervisión"
+  ],
+  "Sampel dan agregat dihapus permanen.": [
+    "Samples and aggregates are permanently deleted.",
+    "Las muestras y los datos agregados se eliminan permanentemente."
+  ],
+  "Hapus riwayat": [
+    "Delete history",
+    "Eliminar historial"
+  ],
+  "Data tetap di perangkat Anda. Core Pulse bekerja secara lokal tanpa telemetri atau sinkronisasi cloud.": [
+    "Your data stays on your device. Core Pulse runs locally without telemetry or cloud synchronization.",
+    "Sus datos permanecen en su dispositivo. Core Pulse funciona localmente, sin telemetría ni sincronización en la nube."
+  ],
+  "Navigasi": [
+    "Navigation",
+    "Navegación"
+  ],
+  "Pintasan untuk berpindah lebih cepat.": [
+    "Shortcuts for faster navigation.",
+    "Atajos para navegar más rápido."
+  ],
+  "Pindah halaman": [
+    "Switch page",
+    "Cambiar página"
+  ],
+  "Informasi perangkat": [
+    "Device information",
+    "Información del dispositivo"
+  ],
+  "Lihat hardware dan ketersediaan fitur.": [
+    "View hardware and feature availability.",
+    "Consulte el hardware y la disponibilidad de funciones."
+  ],
+  "Bersihkan file sementara?": [
+    "Clean temporary files?",
+    "¿Limpiar archivos temporales?"
+  ],
+  "File yang dihapus mungkin tidak dapat dipulihkan.": [
+    "Deleted files may not be recoverable.",
+    "Es posible que los archivos eliminados no se puedan recuperar."
+  ],
+  "Batal": [
+    "Cancel",
+    "Cancelar"
+  ],
+  "Bersihkan file": [
+    "Clean files",
+    "Limpiar archivos"
+  ],
+  "Folder": [
+    "Folder",
+    "Carpeta"
+  ],
+  "Temp akun saat ini": [
+    "Current account temp folder",
+    "Carpeta temporal de la cuenta actual"
+  ],
+  "Perkiraan ruang": [
+    "Estimated space",
+    "Espacio estimado"
+  ],
+  "Hasil pemindaian kedaluwarsa. Tutup dialog dan pindai ulang.": [
+    "Scan results expired. Close this dialog and scan again.",
+    "Los resultados caducaron. Cierre este diálogo y repita el análisis."
+  ],
+  "Hapus riwayat monitoring?": [
+    "Delete monitoring history?",
+    "¿Eliminar historial de supervisión?"
+  ],
+  "Seluruh sampel mentah dan agregat lokal akan dihapus permanen. Pengaturan, riwayat pembersihan, dan sesi pemulihan daya tetap tersimpan.": [
+    "All local samples and aggregates will be permanently deleted. Settings, cleanup history, and power recovery sessions are retained.",
+    "Todas las muestras y agregados locales se eliminarán permanentemente. Se conservarán la configuración, el historial de limpieza y las sesiones de recuperación de energía."
+  ],
+  "Timpa skema daya saat ini?": [
+    "Replace the current power plan?",
+    "¿Reemplazar el plan de energía actual?"
+  ],
+  "Windows atau aplikasi lain telah mengubah skema daya. Pemulihan ini akan menggantinya dengan skema yang tersimpan sebelum sesi tuning.": [
+    "Windows or another app changed the power plan. Restoration will replace it with the plan saved before tuning.",
+    "Windows u otra aplicación cambió el plan de energía. La restauración lo reemplazará con el plan guardado antes del ajuste."
+  ],
+  "Pulihkan skema sebelumnya": [
+    "Restore previous plan",
+    "Restaurar plan anterior"
+  ],
+  "Tutup pesan": [
+    "Dismiss message",
+    "Cerrar mensaje"
+  ],
+  "Tutup dialog": [
+    "Close dialog",
+    "Cerrar diálogo"
+  ],
+  "Tersedia": [
+    "Available",
+    "Disponible"
+  ],
+  "Tidak didukung": [
+    "Unsupported",
+    "No compatible"
+  ],
+  "Perlu izin": [
+    "Permission required",
+    "Se requiere permiso"
+  ],
+  "Aktif": [
+    "Active",
+    "Activo"
+  ],
+  "Menunggu": [
+    "Pending",
+    "Pendiente"
+  ],
+  "Selesai": [
+    "Completed",
+    "Completado"
+  ],
+  "Dibatalkan": [
+    "Cancelled",
+    "Cancelado"
+  ],
+  "Sebagian selesai": [
+    "Partially completed",
+    "Completado parcialmente"
+  ],
+  "Gagal": [
+    "Failed",
+    "Fallido"
+  ],
+  "Tidak tersedia": [
+    "Unavailable",
+    "No disponible"
+  ],
+  "Lihat {0}": [
+    "View {0}",
+    "Ver {0}"
+  ],
+  "Menunggu sampel": [
+    "Waiting for samples",
+    "Esperando muestras"
+  ],
+  "Penggunaan saat ini": [
+    "Current usage",
+    "Uso actual"
+  ],
+  "Sensor tidak tersedia": [
+    "Sensor unavailable",
+    "Sensor no disponible"
+  ],
+  "Grafik penggunaan {0}. {1} sampel.": [
+    "Usage chart for {0}. {1} samples.",
+    "Gráfico de uso de {0}. {1} muestras."
+  ],
+  "Belum ada pengukuran yang tersedia": [
+    "No measurements available yet",
+    "Todavía no hay mediciones disponibles"
+  ],
+  "Grafik akan muncul saat sensor mengirim data.": [
+    "The chart appears when sensors provide data.",
+    "El gráfico aparecerá cuando los sensores proporcionen datos."
+  ],
+  "{0} sampel": [
+    "{0} samples",
+    "{0} muestras"
+  ],
+  "Menunggu data": [
+    "Waiting for data",
+    "Esperando datos"
+  ],
+  "Informasi perangkat diperbarui.": [
+    "Device information updated.",
+    "Información del dispositivo actualizada."
+  ],
+  "Pengaturan tersimpan.": [
+    "Settings saved.",
+    "Configuración guardada."
+  ],
+  "Pemetaan profil tersimpan.": [
+    "Profile mapping saved.",
+    "Asignación de perfil guardada."
+  ],
+  "Profil daya diterapkan. Skema sebelumnya tersimpan untuk pemulihan.": [
+    "Power profile applied. The previous plan is saved for restoration.",
+    "Perfil aplicado. El plan anterior se guarda para restaurarlo."
+  ],
+  "Profil daya sebelumnya dipulihkan.": [
+    "Previous power profile restored.",
+    "Perfil de energía anterior restaurado."
+  ],
+  "{0} dibersihkan. {1} file dilewati, {2} gagal.": [
+    "{0} recovered. {1} files skipped, {2} failed.",
+    "{0} recuperados. {1} archivos omitidos, {2} fallidos."
+  ],
+  "Permintaan pembatalan dikirim. File yang sudah dihapus tetap terhapus.": [
+    "Cancellation requested. Files already deleted remain deleted.",
+    "Cancelación solicitada. Los archivos ya eliminados seguirán eliminados."
+  ],
+  "{0} sampel monitoring dihapus.": [
+    "{0} monitoring samples deleted.",
+    "{0} muestras de supervisión eliminadas."
+  ],
+  "Balanced": [
+    "Balanced",
+    "Equilibrado"
+  ],
+  "Gaming Boost": [
+    "Gaming Boost",
+    "Modo juego"
+  ],
+  "Power Saving": [
+    "Power Saving",
+    "Ahorro de energía"
+  ],
+  "AC power": [
+    "AC power",
+    "Corriente alterna"
+  ],
+  "Battery": [
+    "Battery",
+    "Batería"
+  ],
+  "Bahasa": [
+    "Language",
+    "Idioma"
+  ],
+  "Pilih bahasa antarmuka.": [
+    "Choose the interface language.",
+    "Elija el idioma de la interfaz."
+  ],
+  "Bahasa aplikasi": [
+    "Application language",
+    "Idioma de la aplicación"
+  ],
+  "Perubahan langsung diterapkan dan tersimpan di perangkat.": [
+    "Changes apply immediately and are saved on this device.",
+    "Los cambios se aplican inmediatamente y se guardan en este dispositivo."
+  ],
+  "Ganti tema": [
+    "Switch theme",
+    "Cambiar tema"
+  ],
+  "Riwayat hardware, statistik, dan pola penggunaan perangkat.": [
+    "Hardware history, statistics, and device usage patterns.",
+    "Historial de hardware, estadísticas y patrones de uso."
+  ],
+  "Rentang waktu": [
+    "Time range",
+    "Intervalo de tiempo"
+  ],
+  "15 menit": [
+    "15 minutes",
+    "15 minutos"
+  ],
+  "1 jam": [
+    "1 hour",
+    "1 hora"
+  ],
+  "CPU rata rata": [
+    "Average CPU",
+    "CPU promedio"
+  ],
+  "Memori rata rata": [
+    "Average memory",
+    "Memoria promedio"
+  ],
+  "Puncak CPU": [
+    "Peak CPU",
+    "Pico de CPU"
+  ],
+  "Unduh rata rata": [
+    "Average download",
+    "Descarga promedio"
+  ],
+  "{n} pembacaan valid": [
+    "{n} valid readings",
+    "{n} lecturas válidas"
+  ],
+  "Belum ada pembacaan valid": [
+    "No valid readings yet",
+    "Todavía no hay lecturas válidas"
+  ],
+  "Penggunaan": [
+    "Utilization",
+    "Utilización"
+  ],
+  "Suhu": [
+    "Temperature",
+    "Temperatura"
+  ],
+  "Jaringan": [
+    "Network",
+    "Red"
+  ],
+  "Kelompok grafik": [
+    "Chart group",
+    "Grupo de gráficos"
+  ],
+  "Riwayat penggunaan": [
+    "Usage history",
+    "Historial de uso"
+  ],
+  "Riwayat suhu": [
+    "Temperature history",
+    "Historial de temperatura"
+  ],
+  "Riwayat jaringan": [
+    "Network history",
+    "Historial de red"
+  ],
+  "Rata rata per interval {n} detik": [
+    "Averages over {n}-second intervals",
+    "Promedios en intervalos de {n} segundos"
+  ],
+  "Sensor ditampilkan": [
+    "Visible sensors",
+    "Sensores visibles"
+  ],
+  "Statistik seluruh sensor": [
+    "All sensor statistics",
+    "Estadísticas de todos los sensores"
+  ],
+  "Rata rata berbobot; nilai minimum dan maksimum berasal dari pengukuran asli.": [
+    "Weighted averages; minimum and maximum values come from original measurements.",
+    "Promedios ponderados; los mínimos y máximos proceden de mediciones originales."
+  ],
+  "Sensor": [
+    "Sensor",
+    "Sensor"
+  ],
+  "Pembacaan": [
+    "Readings",
+    "Lecturas"
+  ],
+  "Salin CSV": [
+    "Copy CSV",
+    "Copiar CSV"
+  ],
+  "Data analitik disalin sebagai CSV.": [
+    "Analytics data copied as CSV.",
+    "Datos analíticos copiados como CSV."
+  ],
+  "Tidak dapat menyalin data. Coba lagi.": [
+    "Could not copy data. Try again.",
+    "No se pudieron copiar los datos. Inténtelo de nuevo."
+  ],
+  "Memuat riwayat…": [
+    "Loading history…",
+    "Cargando historial…"
+  ],
+  "Riwayat gagal dimuat": [
+    "Could not load history",
+    "No se pudo cargar el historial"
+  ],
+  "Coba lagi": [
+    "Try again",
+    "Intentar de nuevo"
+  ],
+  "Ringkasan periode": [
+    "Period summary",
+    "Resumen del período"
+  ],
+  "Pengukuran pertama": [
+    "First measurement",
+    "Primera medición"
+  ],
+  "Pengukuran terakhir": [
+    "Latest measurement",
+    "Última medición"
+  ],
+  "Sensor dengan data": [
+    "Sensors with data",
+    "Sensores con datos"
+  ],
+  "Interval grafik": [
+    "Chart interval",
+    "Intervalo del gráfico"
+  ],
+  "{n} detik": [
+    "{n} seconds",
+    "{n} segundos"
+  ],
+  "Belum ada riwayat pada periode ini.": [
+    "No history for this period yet.",
+    "Todavía no hay historial para este período."
+  ],
+  "Data hanya tersedia selama monitoring berjalan. Jeda dan sensor tidak tersedia ditampilkan sebagai celah, bukan nol.": [
+    "Data is available only while monitoring runs. Pauses and unavailable sensors appear as gaps, not zeroes.",
+    "Solo hay datos mientras la supervisión está activa. Las pausas y los sensores no disponibles aparecen como huecos, no como ceros."
+  ],
+  "Data lama menggunakan ringkasan per menit. Riwayat yang belum direkam tidak dapat ditampilkan.": [
+    "Older data uses minute summaries. History that has not been recorded cannot be displayed.",
+    "Los datos antiguos usan resúmenes por minuto. No se puede mostrar un historial que no se haya registrado."
+  ],
+  "Pembaruan otomatis setiap 15 detik": [
+    "Updates automatically every 15 seconds",
+    "Se actualiza automáticamente cada 15 segundos"
+  ],
+  "Pembaruan otomatis dijeda": [
+    "Automatic updates paused",
+    "Actualización automática en pausa"
+  ],
+  "Pilih setidaknya satu sensor.": [
+    "Select at least one sensor.",
+    "Seleccione al menos un sensor."
+  ],
+  "Interval pertama": [
+    "First interval",
+    "Primer intervalo"
+  ],
+  "Interval terakhir": [
+    "Latest interval",
+    "Último intervalo"
+  ],
+  "{n} interval": [
+    "{n} intervals",
+    "{n} intervalos"
+  ],
+  "Tanggal": [
+    "Date",
+    "Fecha"
+  ],
+  "Satuan": [
+    "Unit",
+    "Unidad"
+  ],
+  "Dibaca dari Windows melalui sysinfo": [
+    "Read from Windows through sysinfo",
+    "Leído de Windows mediante sysinfo"
+  ],
+  "Volume yang tersedia dibaca dari Windows": [
+    "Available volumes read from Windows",
+    "Volúmenes disponibles leídos de Windows"
+  ],
+  "Laju adapter dihitung dari delta byte": [
+    "Adapter rates calculated from byte differences",
+    "Velocidades de adaptadores calculadas a partir de diferencias de bytes"
+  ],
+  "Provider sensor suhu belum tersedia pada build ini": [
+    "Temperature sensor provider is not available in this build",
+    "El proveedor de sensores de temperatura no está disponible en esta versión"
+  ],
+  "Provider sensor GPU belum tersedia pada build ini": [
+    "GPU sensor provider is not available in this build",
+    "El proveedor de sensores de GPU no está disponible en esta versión"
+  ],
+  "Provider sensor suhu GPU belum tersedia pada build ini": [
+    "GPU temperature sensor provider is not available in this build",
+    "El proveedor de sensores de temperatura de GPU no está disponible en esta versión"
+  ],
+  "Adapter GPU tidak terdeteksi": [
+    "No GPU adapter detected",
+    "No se detectó un adaptador de GPU"
+  ],
+  "Identitas adapter terdeteksi; sensor terpisah memerlukan provider": [
+    "Adapter identified; separate sensors require a provider",
+    "Adaptador identificado; los sensores adicionales requieren un proveedor"
+  ],
+  "Windows powercfg mendeteksi skema tersedia": [
+    "Windows powercfg detected available plans",
+    "Windows powercfg detectó planes disponibles"
+  ],
+  "Windows powercfg tidak menyediakan skema": [
+    "Windows powercfg did not provide any plans",
+    "Windows powercfg no proporcionó planes"
+  ],
+  "Hanya direktori temp akun saat ini": [
+    "Only the current account's temp directory",
+    "Solo el directorio temporal de la cuenta actual"
+  ],
+  "Batas 20.000 entri tercapai; pindai ulang setelah membersihkan sebagian file.": [
+    "The 20,000 entry limit was reached; scan again after cleaning some files.",
+    "Se alcanzó el límite de 20.000 entradas; repita el análisis después de limpiar algunos archivos."
+  ],
+  "Kategori pembersihan tidak didukung": [
+    "Cleanup category is unsupported",
+    "Categoría de limpieza no compatible"
+  ],
+  "Rencana pembersihan tidak valid": [
+    "Invalid cleanup plan",
+    "Plan de limpieza no válido"
+  ],
+  "Rencana scan sudah kedaluwarsa; pindai ulang": [
+    "Scan plan expired; scan again",
+    "El plan de análisis caducó; repita el análisis"
+  ],
+  "Folder temp berubah; pindai ulang": [
+    "Temp folder changed; scan again",
+    "La carpeta temporal cambió; repita el análisis"
+  ],
+  "Selesaikan sesi tuning sebelumnya sebelum mengaktifkan profil lain": [
+    "Finish the previous tuning session before applying another profile",
+    "Finalice la sesión de ajuste anterior antes de aplicar otro perfil"
+  ],
+  "Profil ini hanya berlaku saat daya AC": [
+    "This profile requires AC power",
+    "Este perfil requiere corriente alterna"
+  ],
+  "Scheme yang dipetakan tidak tersedia lagi": [
+    "The mapped plan is no longer available",
+    "El plan asignado ya no está disponible"
+  ],
+  "Sesi tuning tidak valid": [
+    "Invalid tuning session",
+    "Sesión de ajuste no válida"
+  ],
+  "Sesi tidak dapat dipulihkan": [
+    "Session cannot be restored",
+    "La sesión no se puede restaurar"
+  ],
+  "Power scheme sebelumnya tidak tersedia": [
+    "Previous power plan unavailable",
+    "Plan de energía anterior no disponible"
+  ],
+  "Power plan telah diubah di luar Core Pulse. Tinjau sebelum memulihkan.": [
+    "The power plan was changed outside Core Pulse. Review before restoring.",
+    "El plan de energía se cambió fuera de Core Pulse. Revíselo antes de restaurarlo."
+  ],
+  "Rentang analitik tidak valid": [
+    "Invalid analytics range",
+    "Intervalo de análisis no válido"
+  ],
+  "Tema tidak dikenal": [
+    "Unknown theme",
+    "Tema desconocido"
+  ],
+  "Bahasa tidak dikenal": [
+    "Unknown language",
+    "Idioma desconocido"
+  ],
+  "Folder temp pengguna tidak dapat diakses dengan aman": [
+    "The user temp folder cannot be accessed safely",
+    "No se puede acceder de forma segura a la carpeta temporal del usuario"
+  ],
+  "Folder temp tidak aman": [
+    "The temp folder is unsafe",
+    "La carpeta temporal no es segura"
+  ],
+  "Identitas folder temp tidak tersedia": [
+    "The temp folder identity is unavailable",
+    "La identidad de la carpeta temporal no está disponible"
+  ],
+  "Progres pembersihan": [
+    "Cleanup progress",
+    "Progreso de limpieza"
+  ],
+  "Riwayat gagal disimpan. Monitoring tetap berjalan.": [
+    "History could not be saved. Live monitoring continues.",
+    "No se pudo guardar el historial. La supervisión en vivo continúa."
+  ],
+  "Pemeliharaan riwayat gagal. Data yang ada tetap dipertahankan.": [
+    "History maintenance failed. Existing data is preserved.",
+    "Falló el mantenimiento del historial. Los datos existentes se conservan."
+  ],
+  "Penyimpanan sibuk; sebagian sampel riwayat dilewati.": [
+    "Storage is busy; some history samples were skipped.",
+    "El almacenamiento está ocupado; se omitieron algunas muestras del historial."
+  ],
+  "Memulihkan": [
+    "Restoring",
+    "Restaurando"
+  ],
+  "Pulihkan sesi profil ini sebelum mengubah pemetaan": [
+    "Restore this profile's session before changing its mapping",
+    "Restaure la sesión de este perfil antes de cambiar su asignación"
+  ],
+  "Pulihkan profil ini sebelum mengubah pengaturannya.": [
+    "Restore this profile before changing its settings.",
+    "Restaure este perfil antes de cambiar su configuración."
+  ],
+  "Pemetaan profil berubah; muat ulang sebelum menerapkan": [
+    "Profile mapping changed; refresh before applying",
+    "La asignación del perfil cambió; actualice antes de aplicarlo"
+  ],
+  "Power plan berubah saat pemulihan; tinjau sesi kembali": [
+    "The power plan changed during restoration; review the session again",
+    "El plan de energía cambió durante la restauración; revise la sesión de nuevo"
+  ],
+  "Windows menolak izin perubahan atau pembacaan skema daya": [
+    "Windows denied permission to read or change the power plan",
+    "Windows denegó el permiso para leer o cambiar el plan de energía"
+  ],
+  "Data skema daya Windows tidak valid": [
+    "Invalid Windows power plan data",
+    "Datos del plan de energía de Windows no válidos"
+  ],
+  "Jumlah skema daya Windows melebihi batas pembacaan": [
+    "The number of Windows power plans exceeds the reading limit",
+    "El número de planes de energía de Windows supera el límite de lectura"
+  ],
+  "Skema daya tersedia melalui API Windows": [
+    "Power plans are available through the Windows API",
+    "Los planes de energía están disponibles a través de la API de Windows"
+  ],
+  "Skema daya Windows belum dapat dibaca": [
+    "Windows power plans could not be read",
+    "No se pudieron leer los planes de energía de Windows"
+  ],
+  "Hasil pembersihan terakhir": [
+    "Last cleanup result",
+    "Último resultado de limpieza"
+  ],
+  "Pembersihan selesai, tetapi riwayat gagal disimpan. Tinjau hasil terakhir di halaman pembersihan.": [
+    "Cleanup finished, but history could not be saved. Review the last result on the cleanup page.",
+    "La limpieza terminó, pero no se pudo guardar el historial. Revise el último resultado en la página de limpieza."
+  ],
+  "Menunggu pembatalan…": [
+    "Waiting for cancellation…",
+    "Esperando la cancelación…"
+  ],
+  "{0} dari {1} file diperiksa": [
+    "{0} of {1} files checked",
+    "{0} de {1} archivos revisados"
+  ],
+  "{0} dibersihkan": [
+    "{0} cleaned",
+    "{0} limpiados"
+  ],
+  "{0} dilewati · {1} gagal": [
+    "{0} skipped · {1} failed",
+    "{0} omitidos · {1} fallidos"
+  ],
+  "Proses": [
+    "Processes",
+    "Procesos"
+  ],
+  "Pengaturan · Ctrl+8": [
+    "Settings · Ctrl+8",
+    "Configuración · Ctrl+8"
+  ],
+  "Informasi perangkat terbaca, tetapi gagal disimpan": [
+    "Device information was read but could not be saved",
+    "Se leyó la información del dispositivo, pero no pudo guardarse"
+  ],
+  "Lihat penggunaan sumber daya setiap proses yang berjalan.": [
+    "See resource usage for each running process.",
+    "Consulta el uso de recursos de cada proceso en ejecución."
+  ],
+  "Jeda daftar proses": [
+    "Pause process list",
+    "Pausar lista de procesos"
+  ],
+  "Lanjutkan daftar proses": [
+    "Resume process list",
+    "Reanudar lista de procesos"
+  ],
+  "Daftar proses gagal diperbarui. Pembacaan terakhir tetap ditampilkan.": [
+    "The process list could not be refreshed. The last reading remains visible.",
+    "No se pudo actualizar la lista de procesos. Se muestra la última lectura."
+  ],
+  "Cari proses, PID, atau lokasi": [
+    "Search processes, PID, or path",
+    "Buscar procesos, PID o ubicación"
+  ],
+  "{0} proses": [
+    "{0} processes",
+    "{0} procesos"
+  ],
+  "Nama proses": [
+    "Process name",
+    "Nombre del proceso"
+  ],
+  "Lokasi tidak tersedia": [
+    "Path unavailable",
+    "Ubicación no disponible"
+  ],
+  "Tidak ada proses yang cocok": [
+    "No matching processes",
+    "No hay procesos coincidentes"
+  ],
+  "Membaca proses": [
+    "Reading processes",
+    "Leyendo procesos"
+  ],
+  "Coba nama atau PID lain.": [
+    "Try another name or PID.",
+    "Prueba otro nombre o PID."
+  ],
+  "CPU memerlukan dua pembacaan sebelum nilainya tersedia.": [
+    "CPU values require two readings before they are available.",
+    "Los valores de CPU requieren dos lecturas antes de estar disponibles."
+  ],
+  "{0} hasil": [
+    "{0} results",
+    "{0} resultados"
+  ],
+  "Diperbarui setiap 2 detik": [
+    "Refreshes every 2 seconds",
+    "Se actualiza cada 2 segundos"
+  ],
+  "Halaman sebelumnya": [
+    "Previous page",
+    "Página anterior"
+  ],
+  "Halaman berikutnya": [
+    "Next page",
+    "Página siguiente"
+  ],
+  "CPU dihitung sebagai bagian dari seluruh prosesor. Tanda — berarti menunggu sampel atau akses pembacaan terbatas.": [
+    "CPU is shown as a share of the whole processor. — means a sample is pending or reading access is limited.",
+    "La CPU se muestra como una proporción del procesador completo. — indica una muestra pendiente o acceso de lectura limitado."
+  ],
+  "Daftar dibatasi pada 2.048 proses dengan penggunaan memori tertinggi.": [
+    "The list is limited to the 2,048 processes using the most memory.",
+    "La lista está limitada a los 2.048 procesos que más memoria utilizan."
+  ],
+  "Penyimpanan riwayat": [
+    "History storage",
+    "Almacenamiento del historial"
+  ],
+  "Tersimpan": [
+    "Saved",
+    "Guardado"
+  ],
+  "Terganggu": [
+    "Degraded",
+    "Con problemas"
+  ],
+  "Sampel terakhir tersimpan": [
+    "Last saved sample",
+    "Última muestra guardada"
+  ],
+  "Sampel terlewat sejak aplikasi dibuka": [
+    "Samples skipped since launch",
+    "Muestras omitidas desde el inicio"
+  ],
+  "GPU untuk monitoring": [
+    "GPU to monitor",
+    "GPU para supervisar"
+  ],
+  "Otomatis": [
+    "Automatic",
+    "Automático"
+  ],
+  "Adapter tersimpan belum tersedia": [
+    "Saved adapter is unavailable",
+    "El adaptador guardado no está disponible"
+  ],
+  "Grafik dan analitik GPU mengikuti adapter ini.": [
+    "GPU charts and analytics use this adapter.",
+    "Los gráficos y análisis de GPU usan este adaptador."
+  ],
+  "Menunggu sensor": [
+    "Waiting for sensors",
+    "Esperando sensores"
+  ],
+  "Provider sensor aktif": [
+    "Sensor provider is active",
+    "Proveedor de sensores activo"
+  ],
+  "Provider sensor terganggu": [
+    "Sensor provider interrupted",
+    "Proveedor de sensores interrumpido"
+  ],
+  "Pemulihan otomatis berjalan": [
+    "Automatic recovery is running",
+    "Recuperación automática en curso"
+  ],
+  "Suhu CPU belum tersedia sampai akses driver dapat diverifikasi.": [
+    "CPU temperature is unavailable until driver access can be verified.",
+    "La temperatura de CPU no está disponible hasta verificar el acceso al controlador."
+  ],
+  "Adapter yang dipilih tidak ditemukan. Pilih adapter lain atau Otomatis.": [
+    "The selected adapter was not found. Choose another adapter or Automatic.",
+    "No se encontró el adaptador seleccionado. Elige otro o Automático."
+  ],
+  "Sensor hardware": [
+    "Hardware sensors",
+    "Sensores de hardware"
+  ],
+  "Pilih adapter yang ingin dipantau.": [
+    "Choose the adapter to monitor.",
+    "Elige el adaptador que quieres supervisar."
+  ],
+  "GPU belum tersedia": [
+    "GPU unavailable",
+    "GPU no disponible"
+  ],
+  "Pembacaan suhu CPU menunggu verifikasi akses driver": [
+    "CPU temperature awaits verified driver access",
+    "La temperatura de CPU espera la verificación del acceso al controlador"
+  ],
+  "Sensor belum tersedia dari adapter yang dipilih": [
+    "The selected adapter has no available sensor",
+    "El adaptador seleccionado no tiene un sensor disponible"
+  ],
+  "Adapter GPU belum terdeteksi oleh provider sensor": [
+    "The sensor provider has not detected this GPU adapter",
+    "El proveedor de sensores no ha detectado este adaptador GPU"
+  ],
+  "Identitas adapter GPU tidak valid": [
+    "Invalid GPU adapter identity",
+    "Identidad de adaptador GPU no válida"
+  ],
+  "Suhu GPU memakai inti, atau sensor terpanas bila inti tidak tersedia.": [
+    "GPU temperature uses the core, or the hottest sensor when the core is unavailable.",
+    "La temperatura de GPU usa el núcleo o el sensor más caliente si el núcleo no está disponible."
+  ]
+}
