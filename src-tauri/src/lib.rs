@@ -8,6 +8,10 @@ mod persistence;
 mod processes;
 mod sensors;
 mod games;
+// The controller is exercised against the real persistence and power protocol.
+// Runtime opt-in, background worker and UI integration are still pending.
+#[allow(dead_code)]
+mod automation;
 
 use crate::models::*;
 use chrono::Utc;

@@ -22,6 +22,8 @@ Core Pulse is a Windows desktop application with three components. The React UI 
 
 `games.rs` owns local registrations and ephemeral native-picker tokens. `games/windows.rs` validates PE files, resolves file identity from held handles, and holds read-only process handles so PID reuse does not replace a tracked process. Gaming discovery runs outside the SQLite lock. Registration and matching are independent from the still-pending Auto Boost controller; only the power module may change Windows schemes.
 
+`automation.rs` prepares the global Auto Boost lifecycle and gaming-session persistence on top of the power controller's durable protocol. Runtime worker and opt-in integration are still pending. Its policies, evidence and remaining integration gates are in [AUTO_BOOST.md](AUTO_BOOST.md).
+
 ## Adding a feature
 
 Start with a clear payload and ownership boundary. Add an IPC command only when the UI needs backend behavior, register it in `lib.rs`, and update `api.ts`, `types.ts`, and command checks together. Add database changes through the existing migration mechanism and verify existing data survives. Keep rendering and calculations separate so calculations can be checked without starting the desktop app.

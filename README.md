@@ -56,7 +56,7 @@ Git tracks source and lockfiles. Installer binaries, SDKs, dependency caches, ge
 
 ## Validation in this workspace
 
-The frontend build and 64 Rust library tests pass. `npm run check` also verifies the SQLite schema, IPC registration, analytics weighting, missing readings versus measured zero, CSV serialization, and translation placeholders. Native Tauri/WebView2 checks covered all nine pages in three languages at 1440 × 860 and 860 × 610, all analytics ranges and chart groups, sensor visibility, theme switching, and preferences after reload. Results are stored in `artifacts/redesign/feature-verification.json`.
+The frontend build and 83 Rust library tests pass. `npm run check` also verifies the SQLite schema, IPC registration, analytics weighting, missing readings versus measured zero, CSV serialization, and translation placeholders. Native Tauri/WebView2 checks covered all nine pages in three languages at 1440 × 860 and 860 × 610, all analytics ranges and chart groups, sensor visibility, theme switching, and preferences after reload. Results are stored in `artifacts/redesign/feature-verification.json`.
 
 For native visual checks, start Tauri with `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=--remote-debugging-port=9222`, then run `node scripts/inspect-desktop.mjs features`. Signing, cross-version upgrades, and broader hardware coverage remain outside this verification.
 
