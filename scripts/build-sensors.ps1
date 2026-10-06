@@ -1,5 +1,13 @@
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
+function Get-SourceSha256([string]$Path) {
+    # Use .NET directly: a Windows PowerShell child can inherit a PowerShell 7
+    # module path on hosted runners, where Get-FileHash is not available.
+    $stream = [IO.File]::OpenRead($Path)
+    $algorithm = [Security.Cryptography.SHA256]::Create()
+    try { return [BitConverter]::ToString($algorithm.ComputeHash($stream)).Replace('-', '') }
+    finally { $algorithm.Dispose(); $stream.Dispose() }
+}
 $projectRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 Set-Location -LiteralPath $projectRoot
 $localSdk = Join-Path $projectRoot '.tools/dotnet/dotnet.exe'
@@ -28,7 +36,7 @@ foreach ($entry in $sources) {
     if ([IO.Path]::GetFileName($entry.Name) -ne $entry.Name) { throw 'Invalid source archive name.' }
     $target = Join-Path $sourceCache $entry.Name
     if (!(Test-Path -LiteralPath $target)) { Invoke-WebRequest -UseBasicParsing -Uri $entry.Url -OutFile $target -TimeoutSec 60 }
-    if ((Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash -ne $entry.Sha256) { throw "Source hash mismatch: $($entry.Name)" }
+    if ((Get-SourceSha256 $target) -ne $entry.Sha256) { throw "Source hash mismatch: $($entry.Name)" }
 }
 $notices = Join-Path $publish 'third-party'
 New-Item -ItemType Directory -Path $notices -Force | Out-Null
