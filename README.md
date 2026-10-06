@@ -9,7 +9,7 @@ A Windows-first, offline desktop app based on [PRD.md](PRD.md). The source tree 
 - Persistent dark/light/system appearance and Indonesian, English, or Spanish interface language, available from the toolbar and Settings. Number and date formatting follows the selected language.
 - SQLite migration with foreign keys, WAL, batch sample writes about every five seconds, indexed history, minute aggregates before raw retention, manual monitoring-history purge, and local settings.
 - A read-only process resource viewer with search, CPU/RAM sorting, pagination, executable paths where accessible, and independent pause/refresh.
-- A local Gaming library with a native executable picker, persistent registration/edit/removal, verified process identity, and per-game running-process counts. Registration leaves Auto Boost off and does not change Windows power settings.
+- A local Gaming library with a native executable picker, persistent registration/edit/removal, verified process identity, and per-game running-process counts. Registration leaves Auto Boost off. Explicit confirmation enables a global automatic tuning session with overlap, AC and restoration policies; local session history supports deletion of completed summaries.
 - Independent, bounded history persistence with visible degradation/recovery and background retention.
 - Existing Windows power-plan discovery, profile-to-GUID mapping, durable pending sessions, verified application, restore, conflict detection, and startup recovery prompt.
 - Current-user temp scan for files older than 24 hours, expiring in-memory plan IDs, preview/confirmation, handle-based Windows deletion, root/file identity validation, pinned directory ancestry, hard-link/reparse exclusions, live progress, cancellation, and summary history.
@@ -17,7 +17,7 @@ A Windows-first, offline desktop app based on [PRD.md](PRD.md). The source tree 
 
 ## Important release gaps
 
-This is an internal build. GPU temperature and utilization are integrated with an isolated, self-contained sensor host and per-adapter history. CPU temperature is withheld because the upstream driver API can return a zero-filled buffer on failure; verified per-call CPU driver access is still required. Registered games and read-only process matching are implemented. Explicit opt-in Auto Boost and its automatic restoration, optional FPS/session analysis, cross-version installer upgrades, broader hardware coverage, long-run checks, and signing remain open. See [PRODUCTION.md](PRODUCTION.md) for current evidence and remaining work.
+This is an internal build. GPU temperature and utilization are integrated with an isolated, self-contained sensor host and per-adapter history. CPU temperature is withheld because the upstream driver API can return a zero-filled buffer on failure; verified per-call CPU driver access is still required. Registered games and read-only process matching are implemented. Auto Boost runtime, explicit opt-in controls and local session history are implemented and covered by native-process fixtures with simulated power operations. End-to-end native UI verification of those new controls, actual scheme changes and physical AC transitions, optional FPS/session analysis, cross-version installer upgrades, broader hardware coverage, long-run checks, and signing remain open. See [PRODUCTION.md](PRODUCTION.md) for current evidence and remaining work.
 
 The app never presents unavailable readings as zero or claims that cleaning improves FPS.
 
@@ -56,7 +56,7 @@ Git tracks source and lockfiles. Installer binaries, SDKs, dependency caches, ge
 
 ## Validation in this workspace
 
-The frontend build and 83 Rust library tests pass. `npm run check` also verifies the SQLite schema, IPC registration, analytics weighting, missing readings versus measured zero, CSV serialization, and translation placeholders. Native Tauri/WebView2 checks covered all nine pages in three languages at 1440 × 860 and 860 × 610, all analytics ranges and chart groups, sensor visibility, theme switching, and preferences after reload. Results are stored in `artifacts/redesign/feature-verification.json`.
+The frontend build, native debug build and 91 Rust library tests pass. Repository checks enforce sole-maintainer commit authorship and reject co-author trailers. `npm run check` also verifies the SQLite schema, IPC registration, analytics weighting, missing readings versus measured zero, CSV serialization, and translation placeholders. The previous native Tauri/WebView2 review covered all nine pages in three languages at 1440 × 860 and 860 × 610, all analytics ranges and chart groups, sensor visibility, theme switching, and preferences after reload. Results are stored in `artifacts/redesign/feature-verification.json`. That review predates the new Auto Boost and session-history controls; their native UI verification is still required.
 
 For native visual checks, start Tauri with `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=--remote-debugging-port=9222`, then run `node scripts/inspect-desktop.mjs features`. Signing, cross-version upgrades, and broader hardware coverage remain outside this verification.
 

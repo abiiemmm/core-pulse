@@ -20,9 +20,9 @@ Core Pulse is a Windows desktop application with three components. The React UI 
 
 `sensors.rs` supervises the packaged sensor host with frame validation, process containment, timeouts, and bounded restart backoff. `sidecar/Program.cs` implements the provider. Missing or unverifiable readings remain unavailable; never replace them with zero. Sensor identity must constrain both live readings and retained history.
 
-`games.rs` owns local registrations and ephemeral native-picker tokens. `games/windows.rs` validates PE files, resolves file identity from held handles, and holds read-only process handles so PID reuse does not replace a tracked process. Gaming discovery runs outside the SQLite lock. Registration and matching are independent from the still-pending Auto Boost controller; only the power module may change Windows schemes.
+`games.rs` owns local registrations and ephemeral native-picker tokens. `games/windows.rs` validates PE files, resolves file identity from held handles, and holds read-only process handles so PID reuse does not replace a tracked process. Gaming discovery runs outside the SQLite lock. Registration defaults to automatic tuning off; only the power module may change Windows schemes. Cached observations carry held process handles, and their views recheck liveness against current registration metadata.
 
-`automation.rs` prepares the global Auto Boost lifecycle and gaming-session persistence on top of the power controller's durable protocol. Runtime worker and opt-in integration are still pending. Its policies, evidence and remaining integration gates are in [AUTO_BOOST.md](AUTO_BOOST.md).
+`automation.rs` owns the global Auto Boost lifecycle and gaming-session persistence on top of the power controller's durable protocol. `automation/runtime.rs` separates process discovery from AC protection and serializes configuration, manual restore and controller decisions. One cached observation is bounded by age and configuration generation; activation rechecks those bounds, current settings and held process liveness before and after pending intent is committed. Executable inspection stays outside the controller operation lock. Graceful close invokes conservative restoration on a worker. Its policies, evidence and remaining verification gates are in [AUTO_BOOST.md](AUTO_BOOST.md).
 
 ## Adding a feature
 

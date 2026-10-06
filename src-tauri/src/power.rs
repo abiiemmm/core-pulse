@@ -12,6 +12,8 @@ pub(crate) trait PowerBackend {
     fn active(&mut self) -> Result<String, String>;
     fn set_active(&mut self, guid: &str) -> Result<(), String>;
     fn power_source(&mut self) -> String;
+    fn verify_game_observation(&mut self) -> Result<(),String> { Ok(()) }
+    fn verify_game_activation(&mut self, _gaming_sessions: &[String]) -> Result<(),String> { Ok(()) }
 }
 
 pub fn plans() -> Result<Vec<PowerPlan>, String> { WindowsPower.plans() }
@@ -48,8 +50,6 @@ impl Controller {
         self.activate_request(database, profile_id, false, None, backend)
     }
 
-    // Prepared for the opt-in game watcher; no automatic caller is wired yet.
-    #[allow(dead_code)]
     pub(crate) fn activate_game_with(&self, database: &Mutex<Connection>, profile_id: &str, ac_only: bool, gaming_sessions: &[String], backend: &mut impl PowerBackend) -> Result<TuningSession, String> {
         if gaming_sessions.is_empty() || gaming_sessions.len() > 100 { return Err("Sesi game terverifikasi diperlukan".into()); }
         self.activate_request(database, profile_id, ac_only, Some(gaming_sessions), backend)
@@ -66,6 +66,7 @@ impl Controller {
         let target = normalized_guid(selected.scheme_guid.as_deref().ok_or("Profil belum dipetakan ke Windows power scheme")?)?;
         if !backend.plans()?.iter().any(|plan| plan.guid == target) { return Err("Scheme yang dipetakan tidak tersedia lagi".into()); }
         let previous = normalized_guid(&backend.active()?)?;
+        if let Some(ids) = gaming_sessions { backend.verify_game_activation(ids)?; }
         let session = TuningSession { id: Uuid::new_v4().to_string(), profile_id: profile_id.into(), previous_guid: previous, applied_guid: target, status: "pending".into(), started_at: Utc::now().to_rfc3339(), error: None };
         with_db(database, |conn| {
             // A SQLite write transaction protects the pending check across separate
@@ -86,6 +87,7 @@ impl Controller {
             tx.commit().map_err(|error| error.to_string())
         })?;
         let result: Result<(), String> = (|| {
+            if let Some(ids) = gaming_sessions { backend.verify_game_activation(ids)?; }
             // Recheck both AC and external scheme changes after committing pending.
             if ac_only && backend.power_source() != "AC power" { return Err("Profil ini hanya berlaku saat daya AC".into()); }
             if normalized_guid(&backend.active()?)? != session.previous_guid { return Err("Power plan telah diubah di luar Core Pulse. Tinjau sebelum memulihkan.".into()); }

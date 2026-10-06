@@ -12,8 +12,8 @@
     "Analítica"
   ],
   "Profil daya": [
-    "Power profiles",
-    "Perfiles de energía"
+    "Power profile",
+    "Perfil de energía"
   ],
   "Pembersihan": [
     "Cleanup",
@@ -913,7 +913,7 @@
   ],
   "Selesai": [
     "Completed",
-    "Completado"
+    "Completada"
   ],
   "Dibatalkan": [
     "Cancelled",
@@ -1810,5 +1810,277 @@
   "Pilihan executable tidak dapat dibuka": [
     "The executable picker could not be opened",
     "No se pudo abrir el selector de ejecutables"
+  ],
+  "Auto Boost": [
+    "Auto Boost",
+    "Auto Boost"
+  ],
+  "Auto Boost aktif": [
+    "Auto Boost enabled",
+    "Auto Boost activado"
+  ],
+  "Auto Boost untuk {0}": [
+    "Auto Boost for {0}",
+    "Auto Boost para {0}"
+  ],
+  "Status Auto Boost": [
+    "Auto Boost status",
+    "Estado de Auto Boost"
+  ],
+  "Membaca status otomatis": [
+    "Reading automatic status",
+    "Leyendo el estado automático"
+  ],
+  "Menunggu game": [
+    "Waiting for a game",
+    "Esperando un juego"
+  ],
+  "Profil otomatis aktif": [
+    "Automatic profile active",
+    "Perfil automático activo"
+  ],
+  "Menunggu daya AC": [
+    "Waiting for AC power",
+    "Esperando alimentación de CA"
+  ],
+  "Profil perlu dipetakan": [
+    "Profile needs a mapping",
+    "El perfil necesita una asignación"
+  ],
+  "Pemulihan perlu ditinjau": [
+    "Recovery needs review",
+    "La recuperación requiere revisión"
+  ],
+  "Menunggu sesi game baru": [
+    "Waiting for a new game session",
+    "Esperando una nueva sesión de juego"
+  ],
+  "Profil menunggu pemulihan manual": [
+    "Profile awaiting manual restore",
+    "Perfil pendiente de restauración manual"
+  ],
+  "Auto Boost perlu ditinjau": [
+    "Auto Boost needs review",
+    "Auto Boost requiere revisión"
+  ],
+  "Profil telah dipulihkan manual. Auto Boost menunggu semua game pada sesi ini selesai.": [
+    "The profile was restored manually. Auto Boost waits for all games in this session to end.",
+    "El perfil se restauró manualmente. Auto Boost espera a que terminen todos los juegos de esta sesión."
+  ],
+  "Daya AC tidak tersedia. Skema sebelumnya dipulihkan; Auto Boost menunggu sesi game baru.": [
+    "AC power is unavailable. The previous scheme was restored; Auto Boost waits for a new game session.",
+    "La alimentación de CA no está disponible. Se restauró el esquema anterior; Auto Boost espera una nueva sesión de juego."
+  ],
+  "Skema daya berubah di luar aplikasi. Tinjau sesi pemulihan di halaman Profil.": [
+    "The power scheme changed outside the app. Review the recovery session on the Profiles page.",
+    "El esquema de energía cambió fuera de la aplicación. Revisa la sesión de recuperación en Perfiles."
+  ],
+  "Aktivasi otomatis gagal. Tinjau profil dan mulai sesi game baru untuk mencoba lagi.": [
+    "Automatic activation failed. Review the profile and start a new game session to retry.",
+    "La activación automática falló. Revisa el perfil e inicia una nueva sesión de juego para reintentarlo."
+  ],
+  "Profil otomatis dipulihkan. Sesi ini tidak akan diaktifkan kembali sebelum game selesai.": [
+    "The automatic profile was restored. This session will not reactivate before the game ends.",
+    "Se restauró el perfil automático. Esta sesión no volverá a activarse hasta que termine el juego."
+  ],
+  "Tinjau sesi daya sebelumnya sebelum Auto Boost dapat digunakan.": [
+    "Review the previous power session before using Auto Boost.",
+    "Revisa la sesión de energía anterior antes de usar Auto Boost."
+  ],
+  "Skema tetap diterapkan sesuai pengaturan. Pulihkan secara manual di halaman Profil.": [
+    "The scheme remains applied according to your settings. Restore it manually on the Profiles page.",
+    "El esquema permanece aplicado según tu configuración. Restáuralo manualmente en Perfiles."
+  ],
+  "Game atau profil ini memerlukan daya AC sebelum aktivasi.": [
+    "This game or profile requires AC power before activation.",
+    "Este juego o perfil requiere alimentación de CA antes de activarse."
+  ],
+  "Petakan profil ke skema yang tersedia dan gunakan executable yang terverifikasi.": [
+    "Map the profile to an available scheme and use a verified executable.",
+    "Asigna el perfil a un esquema disponible y usa un ejecutable verificado."
+  ],
+  "Pemulihan otomatis belum selesai. Tinjau sesi daya dan coba pemulihan manual.": [
+    "Automatic recovery is unfinished. Review the power session and try a manual restore.",
+    "La recuperación automática no ha terminado. Revisa la sesión de energía e intenta una restauración manual."
+  ],
+  "Profil pertama tetap digunakan sampai game terakhir yang memenuhi syarat selesai.": [
+    "The first profile stays in use until the last eligible game ends.",
+    "El primer perfil se mantiene hasta que termina el último juego que cumple los requisitos."
+  ],
+  "Aktifkan hanya untuk game yang Anda pilih. Pemantauan berjalan saat halaman lain dibuka atau monitoring dijeda.": [
+    "Enable only for games you choose. Watching continues on other pages and while monitoring is paused.",
+    "Actívalo solo para los juegos que elijas. La detección continúa en otras páginas y cuando se pausa el monitoreo."
+  ],
+  "Pemeriksaan proses tertunda. Perlindungan AC dan pemulihan manual tetap berjalan.": [
+    "Process discovery is delayed. AC protection and manual restoration remain available.",
+    "La detección de procesos está demorada. La protección de CA y la restauración manual siguen disponibles."
+  ],
+  "Tinjau sesi daya": [
+    "Review power session",
+    "Revisar sesión de energía"
+  ],
+  "Petakan profil daya terlebih dahulu.": [
+    "Map the power profile first.",
+    "Asigna primero el perfil de energía."
+  ],
+  "Game terverifikasi, profil otomatis, dan riwayat sesi lokal.": [
+    "Verified games, automatic profiles, and local session history.",
+    "Juegos verificados, perfiles automáticos e historial de sesiones local."
+  ],
+  "Riwayat sesi game": [
+    "Game session history",
+    "Historial de sesiones de juego"
+  ],
+  "50 sesi terbaru. Ringkasan tersimpan lokal sampai Anda menghapusnya.": [
+    "The latest 50 sessions. Summaries stay local until you delete them.",
+    "Las 50 sesiones más recientes. Los resúmenes se guardan localmente hasta que los elimines."
+  ],
+  "Belum ada sesi game": [
+    "No game sessions yet",
+    "Todavía no hay sesiones de juego"
+  ],
+  "Sesi dicatat ketika executable terdaftar benar-benar terverifikasi sedang berjalan.": [
+    "Sessions are recorded when a registered executable is verified as running.",
+    "Las sesiones se registran cuando se verifica que un ejecutable registrado está en ejecución."
+  ],
+  "Game": [
+    "Game",
+    "Juego"
+  ],
+  "Mulai": [
+    "Started",
+    "Inicio"
+  ],
+  "Durasi": [
+    "Duration",
+    "Duración"
+  ],
+  "Tanpa Auto Boost": [
+    "Without Auto Boost",
+    "Sin Auto Boost"
+  ],
+  "Hapus sesi {0}": [
+    "Delete session for {0}",
+    "Eliminar sesión de {0}"
+  ],
+  "Sedang dicatat": [
+    "Recording",
+    "Registrando"
+  ],
+  "Pendaftaran dihapus": [
+    "Registration removed",
+    "Registro eliminado"
+  ],
+  "Terputus": [
+    "Interrupted",
+    "Interrumpida"
+  ],
+  "Aplikasi ditutup": [
+    "App closed",
+    "Aplicación cerrada"
+  ],
+  "Status tidak dikenal": [
+    "Unknown status",
+    "Estado desconocido"
+  ],
+  "{0} dtk": [
+    "{0} sec",
+    "{0} s"
+  ],
+  "{0} mnt": [
+    "{0} min",
+    "{0} min"
+  ],
+  "Atur nama, profil, dan aturan pemulihan game. Pendaftaran baru selalu menonaktifkan Auto Boost.": [
+    "Set the game name, profile, and restoration rules. New registrations always start with Auto Boost disabled.",
+    "Configura el nombre, el perfil y las reglas de restauración del juego. Los registros nuevos siempre comienzan con Auto Boost desactivado."
+  ],
+  "Game ini memerlukan listrik sebelum Auto Boost dapat diterapkan.": [
+    "This game requires AC power before Auto Boost can apply.",
+    "Este juego requiere alimentación de CA para aplicar Auto Boost."
+  ],
+  "Pulihkan setelah game selesai": [
+    "Restore after the game ends",
+    "Restaurar al terminar el juego"
+  ],
+  "Jika nonaktif, skema tetap diterapkan sampai Anda memulihkannya manual.": [
+    "When disabled, the scheme stays applied until you restore it manually.",
+    "Si se desactiva, el esquema permanece aplicado hasta que lo restaures manualmente."
+  ],
+  "Nonaktifkan Auto Boost sebelum mengubah profil atau aturan pemulihan.": [
+    "Disable Auto Boost before changing the profile or restoration rules.",
+    "Desactiva Auto Boost antes de cambiar el perfil o las reglas de restauración."
+  ],
+  "Aktifkan Auto Boost": [
+    "Enable Auto Boost",
+    "Activar Auto Boost"
+  ],
+  "Saat game terverifikasi berjalan, Core Pulse dapat menerapkan skema daya yang dipetakan. Game yang sudah berjalan juga dapat memulai aktivasi.": [
+    "When a verified game is running, Core Pulse can apply the mapped power scheme. An already running game can also trigger activation.",
+    "Cuando se está ejecutando un juego verificado, Core Pulse puede aplicar el esquema de energía asignado. Un juego ya en ejecución también puede activar el perfil."
+  ],
+  "Skema sebelumnya dipulihkan setelah sesi selesai atau aplikasi ditutup.": [
+    "The previous scheme is restored when the session ends or the app closes.",
+    "El esquema anterior se restaura al terminar la sesión o al cerrar la aplicación."
+  ],
+  "Pemulihan otomatis nonaktif. Skema dapat tetap diterapkan setelah game atau aplikasi ditutup.": [
+    "Automatic restoration is disabled. The scheme may stay applied after the game or app closes.",
+    "La restauración automática está desactivada. El esquema puede permanecer aplicado después de cerrar el juego o la aplicación."
+  ],
+  "Kehilangan daya AC tetap memulihkan profil yang dibatasi ke AC. Perubahan skema dari luar tidak ditimpa.": [
+    "Losing AC power still restores AC-only profiles. Outside scheme changes are not overwritten.",
+    "La pérdida de alimentación de CA restaura los perfiles limitados a CA. No se sobrescriben los cambios de esquema externos."
+  ],
+  "Hapus riwayat sesi": [
+    "Delete session history",
+    "Eliminar historial de sesión"
+  ],
+  "Ringkasan dan metrik sesi ini dihapus. Data monitoring dan catatan pemulihan daya tetap tersimpan.": [
+    "This session summary and its metrics are deleted. Monitoring data and power recovery records remain saved.",
+    "Se eliminan el resumen y las métricas de esta sesión. Los datos de monitoreo y los registros de recuperación de energía se conservan."
+  ],
+  "Pengaturan game berubah. Muat ulang sebelum mengaktifkan Auto Boost.": [
+    "Game settings changed. Reload before enabling Auto Boost.",
+    "La configuración del juego cambió. Recarga antes de activar Auto Boost."
+  ],
+  "Executable tidak dapat diverifikasi untuk Auto Boost": [
+    "The executable cannot be verified for Auto Boost",
+    "No se puede verificar el ejecutable para Auto Boost"
+  ],
+  "Petakan profil ke skema daya yang tersedia sebelum mengaktifkan Auto Boost.": [
+    "Map the profile to an available power scheme before enabling Auto Boost.",
+    "Asigna el perfil a un esquema de energía disponible antes de activar Auto Boost."
+  ],
+  "Sesi game aktif tidak dapat dihapus": [
+    "An active game session cannot be deleted",
+    "No se puede eliminar una sesión de juego activa"
+  ],
+  "Aplikasi sedang ditutup": [
+    "The app is closing",
+    "La aplicación se está cerrando"
+  ],
+  "Pengendali Auto Boost tidak tersedia": [
+    "The Auto Boost controller is unavailable",
+    "El controlador de Auto Boost no está disponible"
+  ],
+  "Daftar game tidak tersedia": [
+    "The game registry is unavailable",
+    "El registro de juegos no está disponible"
+  ],
+  "Status game tidak tersedia": [
+    "Game status is unavailable",
+    "El estado del juego no está disponible"
+  ],
+  "Tindakan": [
+    "Actions",
+    "Acciones"
+  ],
+  "Pengamatan game kedaluwarsa. Menunggu pemeriksaan proses baru.": [
+    "The game observation expired. Waiting for a new process check.",
+    "La observación del juego caducó. Esperando una nueva comprobación de procesos."
+  ],
+  "Game tidak lagi terverifikasi aktif untuk Auto Boost": [
+    "The game is no longer verified as running for Auto Boost",
+    "Ya no se verifica que el juego esté en ejecución para Auto Boost"
   ]
 }

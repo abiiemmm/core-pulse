@@ -1,6 +1,6 @@
-# Auto Boost controller and integration gates
+# Auto Boost runtime and verification gates
 
-The controller in `src-tauri/src/automation.rs` is prepared and tested against the real SQLite and power transaction code. It is not connected to a runtime worker or frontend opt-in command yet. Registration continues to store `auto_boost=0`, and the application still exposes no automatic power changes. This is implementation progress toward FR-06, not completion of that requirement.
+The controller in `src-tauri/src/automation.rs` is connected through `automation/runtime.rs` to independent discovery and protection workers, typed IPC, translated opt-in controls and local session history. Registration continues to store `auto_boost=0`; automatic power changes require explicit confirmation for each game. Runtime fixtures use real Windows executable/process identity and simulated power operations. Native UI integration, actual scheme-change lifecycle and physical AC transition evidence remain required before completing FR-06.
 
 ## Global session policy
 
@@ -18,19 +18,24 @@ Gaming starts, ends and startup interruption records use SQLite transactions. A 
 
 The existing power controller verifies application and conservative restoration. The manual AC watchdog excludes game-owned sessions so that two controllers do not compete. Prior-runtime unfinished tuning records require review and never grant current automatic ownership. Startup marks prior open gaming sessions interrupted without changing Windows power settings.
 
-Stable polling avoids redundant linkage writes. Active linkage and cycle tracking discard ended observations and stay bounded by the registered-game limit. Historical gaming summaries remain in SQLite for later history and deletion controls.
+Stable polling avoids redundant linkage writes. Active linkage and cycle tracking discard ended observations and stay bounded by the registered-game limit. The UI shows the latest 50 historical gaming summaries. Only completed summaries can be deleted; deletion removes their derived metrics, detaches retained hardware samples and preserves tuning recovery records. Archived registrations are pruned only when no history references them.
 
 ## Verification scope
 
 Controller tests use an isolated SQLite database and a simulated power backend. That backend verifies the database is unlocked during each OS operation and that intent and game linkage are already durable. Tests cover overlap, multiple processes, deterministic profile selection, missing mappings, opt-in defaults, uncertain discovery, AC eligibility and disconnect, manual cancellation before/after startup, opt-in toggling, outside changes, transaction/link failures, denied mutation, crash recovery, retained profiles, shutdown and bounded tracking during continuous overlap.
 
-The existing Windows process tests separately prove matching by canonical path, file identity, creation time and held process handles. Passing both sets does not yet prove their runtime integration or a physical AC transition.
+The 91-test Rust suite includes five runtime fixtures using real picker-token registration and Windows process handles with simulated power operations. These cover multiple matching processes, final exit, manual restoration and AC protection while discovery is blocked, responsive shutdown, expired/configuration-invalidated observations, and last-moment liveness checks. Three registration/history fixtures additionally cover stale confirmation settings, live-handle cache views and deletion that preserves hardware samples and recovery records. The native debug and frontend production builds pass, and IPC checks cover 35 commands. These results establish fixture integration; they do not verify the new native UI flows, actual Windows power mutation or a physical AC transition.
 
-## Work required before enabling the feature
+## Runtime and UI behavior
 
-- Connect independent bounded process discovery and the global controller to app lifecycle. Monitoring pause, minimizing or leaving the Gaming page must not stop AC protection or game exit handling.
-- Serialize game-setting writes and explicit manual restores with controller decisions. Keep executable I/O outside the controller operation lock so it cannot delay a manual restore. Revalidate current registration settings, snapshot freshness and held process liveness before activation.
-- Keep AC protection and outside-change handling responsive when discovery is slow or unavailable. Avoid treating stale snapshots as game starts or exits.
-- Add typed opt-in/status/session-history IPC, explicit enable confirmation, AC/restore settings, status explanations, recovery navigation and translations in all three languages.
-- Connect graceful shutdown to conservative automatic restoration and retain retryable recovery when storage or Windows calls fail.
-- Verify the complete native pipeline with actual mapped Windows schemes and picker-selected fixtures, overlapping game processes, manual cancellation, minimization and app close/restart. Always restore the machine's original scheme and preserve user preferences. Physical AC transitions and broader hardware coverage remain separate release evidence.
+Discovery runs every two seconds on its own worker and retains one latest observation. Protection runs every second even when executable discovery is blocked. The controller rejects observations older than five seconds or captured before a configuration change. Freshness is checked after potentially waiting for SQLite; activation also verifies current eligible settings and held process liveness both before and after pending intent commits. Slow executable inspection cannot hold the automatic operation lock and delay explicit manual restoration.
+
+Configuration commands serialize with automatic decisions. Enabling verifies the executable before taking operation locks and compares the confirmed settings with the current registration. Armed profile, AC and restoration settings require disarming before editing. Monitoring pause, the selected page and window visibility do not control either background worker. Prior unfinished recovery continues to require explicit review.
+
+The Gaming page supplies enable confirmation, per-game AC/restoration settings, translated controller/discovery status, a link to manual recovery and local session history. A graceful main-window close stops automatic decisions, restores the current automatic session when its policy allows and closes active gaming summaries. Discovery does not need to finish for shutdown restoration. A failed restore retains durable recovery for the next launch.
+
+## Remaining verification
+
+- Check new native opt-in, status, editor and history UI flows in all three languages, both themes and compact/regular layouts. Previous Gaming screenshots cover registration and matching only.
+- Verify the full native pipeline with actual mapped Windows schemes and picker-selected fixtures, overlapping game processes, manual cancellation, minimization and app close/restart. Always restore the original scheme and preserve user preferences and recovery records.
+- Verify physical AC transitions, sleep/resume and sustained resource behavior on broader hardware. Simulated power fixtures do not establish these results.

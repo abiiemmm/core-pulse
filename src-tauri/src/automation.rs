@@ -1,5 +1,8 @@
-//! One global game-owned tuning session. The runtime worker and opt-in UI will
-//! call this controller under one operation lock; it never trusts process names.
+mod runtime;
+pub use runtime::{RuntimeStatus, Service};
+
+// One global game-owned tuning session. The runtime worker and opt-in UI will
+// call this controller under one operation lock; it never trusts process names.
 use crate::{
     db,
     games::Snapshot,
@@ -104,7 +107,9 @@ impl Controller {
         power: &power::Controller,
         backend: &mut impl PowerBackend,
     ) -> Result<(), String> {
+        backend.verify_game_observation()?;
         self.sync_sessions(snapshot, database)?;
+        backend.verify_game_observation()?;
         let observed_opt_in: Vec<_> = snapshot
             .games
             .iter()
@@ -165,19 +170,8 @@ impl Controller {
             .collect::<Vec<_>>();
         self.status.relevant_games = relevant.len();
 
-        if let Some(active) = &self.active {
-            let stored = {
-                let conn = database.lock().map_err(|_| "Database tidak tersedia")?;
-                power::load_session(&conn, &active.session.id)?
-            };
-            if stored.status == "restored" {
-                self.active = None;
-                self.blocked = Some("manual_restore".into());
-            } else if stored.status != "active" {
-                self.blocked = Some("recovery_required".into());
-                self.describe(Mode::RecoveryRequired, self.blocked.clone());
-                return Ok(());
-            }
+        if self.protect_inner(database, power, backend, Some(&source))? {
+            return Ok(());
         }
         if self.blocked.is_some() {
             self.describe(
@@ -192,28 +186,6 @@ impl Controller {
         }
 
         if let Some(active) = &self.active {
-            let current = backend.active()?;
-            if current != active.session.applied_guid {
-                // The existing restoration protocol records conflicts and never
-                // forces over an outside change. Returning to the original GUID
-                // is also treated as cancellation, with no reapplication.
-                self.blocked = Some("external_change".into());
-                let restored = power.restore_with(database, &active.session.id, false, backend)?;
-                if restored.status == "restored" {
-                    self.active = None;
-                }
-                self.describe(Mode::Suspended, self.blocked.clone());
-                return Ok(());
-            }
-            if active.ac_only && source != "AC power" {
-                // AC protection wins over restore-on-exit=false. Do not silently
-                // rearm while this same game cycle remains running.
-                self.blocked = Some("ac_lost".into());
-                power.restore_with(database, &active.session.id, false, backend)?;
-                self.active = None;
-                self.describe(Mode::WaitingForAc, self.blocked.clone());
-                return Ok(());
-            }
             if relevant.is_empty() {
                 if !active.restore_on_exit {
                     self.describe(Mode::Retained, Some("manual_restore_required".into()));
@@ -350,6 +322,78 @@ impl Controller {
             ),
         );
         Ok(())
+    }
+
+    pub fn protect(
+        &mut self,
+        database: &Mutex<Connection>,
+        power: &power::Controller,
+        backend: &mut impl PowerBackend,
+    ) -> Result<Status, String> {
+        match self.protect_inner(database, power, backend, None) {
+            Ok(_) => Ok(self.status()),
+            Err(error) => {
+                self.status.error = Some(error.clone());
+                self.describe(Mode::Error, self.blocked.clone());
+                Err(error)
+            }
+        }
+    }
+    fn protect_inner(
+        &mut self,
+        database: &Mutex<Connection>,
+        power: &power::Controller,
+        backend: &mut impl PowerBackend,
+        source: Option<&str>,
+    ) -> Result<bool, String> {
+        if let Some(active) = &self.active {
+            let stored = {
+                let conn = database.lock().map_err(|_| "Database tidak tersedia")?;
+                power::load_session(&conn, &active.session.id)?
+            };
+            if stored.status == "restored" {
+                self.active = None;
+                self.blocked = Some("manual_restore".into());
+            } else if stored.status != "active" {
+                self.blocked = Some("recovery_required".into());
+                self.describe(Mode::RecoveryRequired, self.blocked.clone());
+                return Ok(true);
+            }
+        }
+        if let Some(active) = &self.active {
+            if self.blocked.is_some() {
+                self.describe(Mode::RecoveryRequired, self.blocked.clone());
+                return Ok(true);
+            }
+            let current = backend.active()?;
+            if current != active.session.applied_guid {
+                // The existing restoration protocol records conflicts and never
+                // forces over an outside change. Returning to the original GUID
+                // is also treated as cancellation, with no reapplication.
+                self.blocked = Some("external_change".into());
+                let restored = power.restore_with(database, &active.session.id, false, backend)?;
+                if restored.status == "restored" {
+                    self.active = None;
+                }
+                self.describe(Mode::Suspended, self.blocked.clone());
+                return Ok(true);
+            }
+            if active.ac_only
+                && source
+                    .map(str::to_owned)
+                    .unwrap_or_else(|| backend.power_source())
+                    != "AC power"
+            {
+                // AC protection wins over restore-on-exit=false. Do not silently
+                // rearm while this same game cycle remains running.
+                self.blocked = Some("ac_lost".into());
+                power.restore_with(database, &active.session.id, false, backend)?;
+                self.active = None;
+                self.describe(Mode::WaitingForAc, self.blocked.clone());
+                return Ok(true);
+            }
+        }
+        Ok(false)
     }
 
     fn describe(&mut self, mode: Mode, reason: Option<String>) {
