@@ -1,7 +1,7 @@
 mod runtime;
 pub use runtime::{RuntimeStatus, Service};
 
-// One global game-owned tuning session. The runtime worker and opt-in UI will
+// One global game-owned tuning session. The runtime worker and opt-in commands
 // call this controller under one operation lock; it never trusts process names.
 use crate::{
     db,

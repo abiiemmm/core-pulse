@@ -1,6 +1,6 @@
 # Auto Boost runtime and verification gates
 
-The controller in `src-tauri/src/automation.rs` is connected through `automation/runtime.rs` to independent discovery and protection workers, typed IPC, translated opt-in controls and local session history. Registration continues to store `auto_boost=0`; automatic power changes require explicit confirmation for each game. Runtime fixtures use real Windows executable/process identity and simulated power operations. Native UI integration, actual scheme-change lifecycle and physical AC transition evidence remain required before completing FR-06.
+The controller in `src-tauri/src/automation.rs` is connected through `automation/runtime.rs` to independent discovery and protection workers, typed IPC, translated opt-in controls and local session history. Registration continues to store `auto_boost=0`; automatic power changes require explicit confirmation for each game. Runtime fixtures use real Windows executable/process identity and simulated power operations. A 44-check native UI/lifecycle review now passes with the target equal to the active Windows scheme. Actual scheme-change lifecycle and physical AC transition evidence remain required before completing FR-06.
 
 ## Global session policy
 
@@ -24,7 +24,7 @@ Stable polling avoids redundant linkage writes. Active linkage and cycle trackin
 
 Controller tests use an isolated SQLite database and a simulated power backend. That backend verifies the database is unlocked during each OS operation and that intent and game linkage are already durable. Tests cover overlap, multiple processes, deterministic profile selection, missing mappings, opt-in defaults, uncertain discovery, AC eligibility and disconnect, manual cancellation before/after startup, opt-in toggling, outside changes, transaction/link failures, denied mutation, crash recovery, retained profiles, shutdown and bounded tracking during continuous overlap.
 
-The 91-test Rust suite includes five runtime fixtures using real picker-token registration and Windows process handles with simulated power operations. These cover multiple matching processes, final exit, manual restoration and AC protection while discovery is blocked, responsive shutdown, expired/configuration-invalidated observations, and last-moment liveness checks. Three registration/history fixtures additionally cover stale confirmation settings, live-handle cache views and deletion that preserves hardware samples and recovery records. The native debug and frontend production builds pass, and IPC checks cover 35 commands. These results establish fixture integration; they do not verify the new native UI flows, actual Windows power mutation or a physical AC transition.
+The 91-test Rust suite includes five runtime fixtures using real picker-token registration and Windows process handles with simulated power operations. These cover multiple matching processes, final exit, manual restoration and AC protection while discovery is blocked, responsive shutdown, expired/configuration-invalidated observations, and last-moment liveness checks. Three registration/history fixtures additionally cover stale confirmation settings, live-handle cache views and deletion that preserves hardware samples and recovery records. The native debug and frontend production builds pass, and IPC checks cover 35 commands. These results establish fixture integration. The separate native review below establishes UI/lifecycle behavior; neither verifies an actual Windows power mutation or a physical AC transition.
 
 ## Runtime and UI behavior
 
@@ -34,8 +34,16 @@ Configuration commands serialize with automatic decisions. Enabling verifies the
 
 The Gaming page supplies enable confirmation, per-game AC/restoration settings, translated controller/discovery status, a link to manual recovery and local session history. A graceful main-window close stops automatic decisions, restores the current automatic session when its policy allows and closes active gaming summaries. Discovery does not need to finish for shutdown restoration. A failed restore retains durable recovery for the next launch.
 
+## Native lifecycle evidence
+
+The native review passes 44 checks against the compiled Tauri/WebView2 application, selected executable fixtures and actual held Windows process handles. It covers explicit opt-in and cancellation, two concurrent instances, two games sharing the initially pinned profile, exit handling while monitoring is paused and the actual main window is minimized, manual restore suppression, a new cycle selecting another profile, active/past history controls and graceful close. Status, history and armed editor rendering is verified in Indonesian, English and Spanish, dark/light themes and 1440 × 860 / 860 × 610 layouts. The compact editor footer and session table remain reachable.
+
+After close, SQLite proves the current tuning session restored and its active gaming summary ended as `app_closed`. The game fixture stays alive until QA terminates it. Cleanup removes only manifest-identified fixture summaries/registrations, restores exact prior preference/mapping rows, and preserves all prior recovery and hardware samples. Foreign-key and quick checks pass. Evidence is under `artifacts/auto-boost/`.
+
+Both tested profiles map to the already-active Windows GUID. No scheme switch occurs, so this proves native ownership/persistence and UI behavior rather than actual OS mutation or AC transitions. The window helper selects the PID-owned `Tauri Window`, checks actual minimized state and posts close to that handle; the first attempt using `MainWindowHandle` was discarded because it selected Tao's internal window.
+
 ## Remaining verification
 
-- Check new native opt-in, status, editor and history UI flows in all three languages, both themes and compact/regular layouts. Previous Gaming screenshots cover registration and matching only.
+- Review enable confirmation and failure/recovery states in all three languages, including conservative recovery after a real app crash/restart.
 - Verify the full native pipeline with actual mapped Windows schemes and picker-selected fixtures, overlapping game processes, manual cancellation, minimization and app close/restart. Always restore the original scheme and preserve user preferences and recovery records.
 - Verify physical AC transitions, sleep/resume and sustained resource behavior on broader hardware. Simulated power fixtures do not establish these results.
