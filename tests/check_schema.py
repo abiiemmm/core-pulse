@@ -10,7 +10,10 @@ assert match, "migration not found"
 database = sqlite3.connect(":memory:")
 database.execute("PRAGMA foreign_keys=ON")
 database.executescript(match.group(1))
-assert database.execute("PRAGMA user_version").fetchone()[0] == 1
+upgrade = re.search(r'fn migrate_games.*?conn\.execute_batch\(r#"(.*?)"#\)', source, re.S)
+assert upgrade, "game upgrade migration not found"
+database.executescript(upgrade.group(1))
+assert database.execute("PRAGMA user_version").fetchone()[0] == 2
 assert not database.execute("PRAGMA foreign_key_check").fetchall()
 tables = {row[0] for row in database.execute("SELECT name FROM sqlite_master WHERE type='table'")}
 assert {"devices", "hardware_samples", "tuning_sessions", "cleaning_results", "registered_games", "gaming_sessions"} <= tables

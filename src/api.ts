@@ -1,4 +1,4 @@
-import type { AnalyticsReport, AppSettings, SensorInventory, Capability, CleanerScan, CleaningResult, CleanupProgress, DeviceInfo, HardwareSnapshot, HistoryPoint, PerformanceProfile, PowerPlan, PersistenceStatus, ProcessSnapshot, TuningSession } from './types';
+import type { GameSelection, GameSettings, GameSnapshot, RegisteredGame, AnalyticsReport, AppSettings, SensorInventory, Capability, CleanerScan, CleaningResult, CleanupProgress, DeviceInfo, HardwareSnapshot, HistoryPoint, PerformanceProfile, PowerPlan, PersistenceStatus, ProcessSnapshot, TuningSession } from './types';
 
 type TauriApi = {
   core: { invoke: <T>(command: string, args?: Record<string, unknown>) => Promise<T> };
@@ -74,6 +74,8 @@ async function invoke<T>(command: string, args?: Record<string, unknown>): Promi
     case 'get_analytics_report': return { from: new Date(Date.now() - Number(args?.minutes) * 60000).toISOString(), to: now(), bucket_seconds: 5, points: [] } as T;
     case 'get_cleaning_history': return [] as T;
     case 'get_unfinished_tuning_sessions': return [] as T;
+    case 'get_registered_games': return [] as T;
+    case 'get_game_status': return { recorded_at: now(), status: 'demo', games: [] } as T;
     case 'scan_cleanable_files': return { plan_id: 'demo', expires_at: new Date(Date.now() + 300000).toISOString(), category: 'user_temp', estimated_bytes: 0, eligible_count: 0, skipped_count: 0, warnings: ['Pratinjau web tidak memindai file di komputer.'] } as T;
     case 'start_monitoring': case 'stop_monitoring': return undefined as T;
     default: throw new Error('Tindakan ini hanya tersedia di aplikasi desktop.');
@@ -81,6 +83,12 @@ async function invoke<T>(command: string, args?: Record<string, unknown>): Promi
 }
 
 export const api = {
+  pickGame: () => invoke<GameSelection | null>('pick_game_executable'),
+  registerGame: (selectionId: string, settings: GameSettings) => invoke<RegisteredGame>('register_game', { selectionId, settings }),
+  getGames: () => invoke<RegisteredGame[]>('get_registered_games'),
+  updateGame: (gameId: string, settings: GameSettings) => invoke<RegisteredGame>('update_registered_game', { gameId, settings }),
+  removeGame: (gameId: string) => invoke<void>('remove_registered_game', { gameId }),
+  getGameStatus: () => invoke<GameSnapshot>('get_game_status'),
   getSensors: () => invoke<SensorInventory>('get_sensor_inventory'),
   getProcesses: () => invoke<ProcessSnapshot>('get_process_snapshot'),
   getSnapshot: () => invoke<HardwareSnapshot>('get_hardware_snapshot'),

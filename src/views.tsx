@@ -5,6 +5,7 @@ import { AlertCircle, ArrowDownLeft, ArrowRight, ArrowUpRight, Check, ChevronRig
 import { isDesktop } from './api';
 import type { Page } from './navigation';
 import Processes from './Processes';
+import Gaming from './Gaming';
 import SensorPanel from './SensorPanel';
 import { SENSORS, summarize } from './usePulse';
 import type { PulseModel, Sensor } from './usePulse';
@@ -50,6 +51,7 @@ export default function Views({ page, model: m, sensor, setSensor, navigate }: P
   }
 
   if (page === 'analytics') return <Analytics model={m} />;
+  if (page === 'gaming') return <Gaming profiles={m.profiles} navigate={navigate} />;
   if (page === 'processes') return <Processes />;
 
   if (page === 'tuner') return <>

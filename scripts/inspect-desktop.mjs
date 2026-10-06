@@ -1,7 +1,8 @@
 // Inspect the native Tauri WebView2. Start Tauri with a local debugging port first.
 import { mkdir, writeFile } from 'node:fs/promises';
 import { readFile } from 'node:fs/promises';
-import { execFile } from 'node:child_process';
+import { execFile, spawn } from 'node:child_process';
+import { resolve } from 'node:path';
 import { promisify } from 'node:util';
 let target;
 for (let attempt=0; attempt<50&&!target; attempt++) {
@@ -61,7 +62,7 @@ try {
       await nav('Pengaturan');
       await click('Array.from(document.querySelectorAll(".theme-choice")).find(button => button.textContent.includes("Gelap"))');
       await delay(500);
-      for (const label of ['Ringkasan', 'Monitor', 'Analitik', 'Profil daya', 'Pembersihan', 'Perangkat', 'Proses', 'Pengaturan']) {
+      for (const label of ['Ringkasan', 'Monitor', 'Analitik', 'Profil daya', 'Pembersihan', 'Perangkat', 'Proses', 'Gaming', 'Pengaturan']) {
         await nav(label);
         results.push(await layout());
         await screenshot(`dark-${label.replaceAll(' ', '-').toLowerCase()}`);
@@ -92,7 +93,7 @@ try {
       await delay(100);
       results.push({ confirmationCancelled: await evaluate('!document.querySelector(".dialog")') });
       await send('Emulation.setDeviceMetricsOverride', { width: 860, height: 610, deviceScaleFactor: 1, mobile: false });
-      for (const label of ['Ringkasan', 'Monitor', 'Analitik', 'Profil daya', 'Pembersihan', 'Perangkat', 'Proses', 'Pengaturan']) {
+      for (const label of ['Ringkasan', 'Monitor', 'Analitik', 'Profil daya', 'Pembersihan', 'Perangkat', 'Proses', 'Gaming', 'Pengaturan']) {
         await nav(label); results.push(await layout());
       }
       await screenshot('compact-settings');
@@ -119,14 +120,14 @@ try {
       await evaluate(`(()=>{const select=document.querySelector('.language-switch');select.value=${JSON.stringify(language)};select.dispatchEvent(new Event('change',{bubbles:true}));})()`);
       await delay(600);
     };
-    const titles = { id: ['Ringkasan','Monitor','Analitik','Profil daya','Pembersihan','Perangkat','Proses','Pengaturan'], en: ['Overview','Monitor','Analytics','Power profiles','Cleanup','Device','Processes','Settings'], es: ['Resumen','Monitor','Analítica','Perfiles de energía','Limpieza','Dispositivo','Procesos','Configuración'] };
+    const titles = { id: ['Ringkasan','Monitor','Analitik','Profil daya','Pembersihan','Perangkat','Proses','Gaming','Pengaturan'], en: ['Overview','Monitor','Analytics','Power profiles','Cleanup','Device','Processes','Gaming','Settings'], es: ['Resumen','Monitor','Analítica','Perfiles de energía','Limpieza','Dispositivo','Procesos','Juegos','Configuración'] };
     try {
       for (const language of ['id','en','es']) {
         await changeLanguage(language);
         checks.push({ language, htmlLanguage: await evaluate('document.documentElement.lang'), savedLanguage: await evaluate('window.__TAURI__.core.invoke("get_settings").then(s=>s.language)') });
         for (const size of [{width:1440,height:860}, {width:860,height:610}]) {
           await send('Emulation.setDeviceMetricsOverride',{...size,deviceScaleFactor:1,mobile:false});
-          for (let index=0; index<8; index++) {
+          for (let index=0; index<9; index++) {
             await byIndex(index);
             const result = await layout();
             checks.push({language,...result,translatedTitle:result.title === titles[language][index]});
@@ -155,7 +156,7 @@ try {
       await screenshot('analytics-en-light');
       await send('Page.reload'); await delay(1800);
       checks.push({persistedLanguage: await evaluate('document.documentElement.lang'),persistedTheme: await evaluate('document.documentElement.dataset.theme')});
-      await byIndex(7); await screenshot('settings-en-light');
+      await byIndex(8); await screenshot('settings-en-light');
       await click('document.querySelector(".theme-switch")'); await delay(400);
       checks.push({darkTheme: await evaluate('document.documentElement.dataset.theme')});
       if (checks.some(check=>check.horizontalOverflow||check.documentOverflow||check.translatedTitle===false||check.report?.valid===false)||errors.length) throw new Error('Feature review failed: '+JSON.stringify({checks,errors}));
@@ -163,7 +164,7 @@ try {
       console.log(JSON.stringify({checks,errors}));
     } finally {
       await changeLanguage(originalSettings.language ?? 'id');
-      await byIndex(7);
+      await byIndex(8);
       const themeIndex = {dark:0,light:1,system:2}[originalSettings.theme];
       await click(`document.querySelectorAll('.theme-choice')[${themeIndex}]`);
       await delay(400);
@@ -203,7 +204,7 @@ try {
         { language: 'en', theme: 'light', width: 860, height: 610, status: 'cancelled', heading: 'Last cleanup result' },
         { language: 'es', theme: 'dark', width: 860, height: 610, status: 'partial', heading: 'Último resultado de limpieza' },
       ]) {
-        await click('document.querySelectorAll(".sidebar .nav-item")[7]');
+        await click('document.querySelectorAll(".sidebar .nav-item")[8]');
         await click(`document.querySelectorAll('.theme-choice')[${scenario.theme === 'dark' ? 0 : 1}]`);
         await evaluate(`(() => { const select = document.querySelector('.language-switch'); select.value = '${scenario.language}'; select.dispatchEvent(new Event('change', { bubbles: true })); })()`);
         await delay(400);
@@ -388,7 +389,7 @@ try {
   } else if (mode === 'theme') {
     const settings = await evaluate('window.__TAURI__.core.invoke("get_settings")');
     const results = [];
-    await click('document.querySelectorAll(".sidebar .nav-item")[7]');
+    await click('document.querySelectorAll(".sidebar .nav-item")[8]');
     try {
       await click('document.querySelectorAll(".theme-choice")[2]');
       for (const value of ['light','dark']) {
@@ -402,6 +403,71 @@ try {
       await send('Emulation.setEmulatedMedia',{features:[]});
       await click(`document.querySelectorAll('.theme-choice')[${{dark:0,light:1,system:2}[settings.theme]}]`);
       await click('document.querySelectorAll(".sidebar .nav-item")[2]');
+    }
+  } else if (mode === 'games') {
+    if (!await evaluate('Boolean(window.__TAURI__?.core?.invoke)')) throw new Error('Gaming QA requires native Tauri.');
+    const launch=JSON.parse((await readFile('artifacts/games/native-launch.json','utf8')).replace(/^\uFEFF/,''));
+    if (!resolve(launch.gamePath).startsWith(resolve('artifacts/games')+'\\')) throw new Error('Executable must be a workspace game fixture.');
+    const original=await evaluate('window.__TAURI__.core.invoke("get_settings")');
+    const originalPlan=await evaluate('window.__TAURI__.core.invoke("get_active_power_plan")');
+    const before=await evaluate('window.__TAURI__.core.invoke("get_registered_games")');
+    const children=[]; const checks=[]; let gameId;
+    const invoke=(command,args={})=>evaluate(`window.__TAURI__.core.invoke(${JSON.stringify(command)},${JSON.stringify(args)})`);
+    const picker=async(cancel=false)=>promisify(execFile)('powershell',['-NoProfile','-ExecutionPolicy','Bypass','-File','scripts/select-game-fixture.ps1','-AppProcessId',String(launch.appPid),...(cancel?['-Cancel']:['-ExecutablePath',launch.gamePath])]);
+    const waitFor=async(expression)=>{for(let attempt=0;attempt<30;attempt++){if(await evaluate(expression))return;await delay(200);}throw new Error('Gaming QA condition timed out: '+expression);};
+    const gameState=()=>invoke('get_game_status').then(snapshot=>snapshot.games.find(row=>row.game.id===gameId));
+    const waitCount=async(expected)=>{for(let attempt=0;attempt<25;attempt++){if((await gameState())?.process_count===expected)return;await delay(200);}throw new Error('Game process count did not become '+expected);};
+    try {
+      await click('document.querySelectorAll(".sidebar .nav-item")[7]');
+      await waitFor('document.querySelector(".gaming-library") && !document.body.innerText.includes("Memuat daftar game")');
+      await click('document.querySelector(".page-actions .button-primary")');await picker(true);await delay(250);
+      checks.push({pickerCancellation:!await evaluate('Boolean(document.querySelector(".game-editor"))')});
+      await click('document.querySelector(".page-actions .button-primary")');await picker();
+      await waitFor('Boolean(document.querySelector("#game-name"))');
+      const name='Core Pulse QA ñ — '+Date.now();
+      await evaluate(`{ const input=document.querySelector('#game-name');Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(input,${JSON.stringify(name)});input.dispatchEvent(new Event('input',{bubbles:true})); }`);
+      await delay(150);await click('document.querySelector(".dialog-footer .button-primary")');
+      await waitFor('!document.querySelector(".game-editor")');
+      const registered=await invoke('get_registered_games');const game=registered.find(item=>item.display_name===name);if(!game)throw new Error('Native registration did not persist.');gameId=game.id;
+      checks.push({nativePickerRegistration:true,autoBoostOff:game.auto_boost===false});
+      const rejected=await evaluate(`window.__TAURI__.core.invoke('register_game',{selectionId:'not-issued-token',path:${JSON.stringify(launch.gamePath)},settings:${JSON.stringify({display_name:'invalid',profile_id:'gaming',ac_only:true,restore_on_exit:true})}}).then(()=>false,()=>true)`);
+      checks.push({arbitraryPathWithoutTokenRejected:rejected});
+      for(let index=0;index<2;index++)children.push(spawn(launch.gamePath,['-n','30','127.0.0.1'],{stdio:'ignore',windowsHide:true}));
+      await waitCount(2);checks.push({verifiedOverlap:true});children[0].kill();await waitCount(1);checks.push({oneExitKeepsOtherProcess:true});children[1].kill();await waitCount(0);checks.push({finalExitDetected:true});
+      for(const language of ['id','en','es']){
+        await evaluate(`{const select=document.querySelector('.language-switch');Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set.call(select,'${language}');select.dispatchEvent(new Event('change',{bubbles:true}));}`);await delay(550);
+        for(const theme of ['dark','light']){
+          if(await evaluate(`document.documentElement.dataset.theme!=='${theme}'`))await click('document.querySelector(".theme-switch")');await delay(200);
+          for(const size of [{width:1440,height:860},{width:860,height:610}]){
+            await send('Emulation.setDeviceMetricsOverride',{...size,deviceScaleFactor:1,mobile:false});
+            await delay(100);
+            const navigationVisible=await evaluate('(()=>{const item=document.querySelector(".sidebar nav [aria-current=page]").getBoundingClientRect();const nav=document.querySelector(".sidebar nav").getBoundingClientRect();return item.top>=nav.top&&item.bottom<=nav.bottom;})()');
+            const result=await layout();checks.push({language,theme,...result,navigationVisible,translatedTitle:result.title===(language==='es'?'Juegos':'Gaming')});
+            await screenshot(`gaming-${language}-${theme}-${size.width}`);
+          }
+        }
+        await click('document.querySelector(".game-actions button")');
+        await waitFor('document.activeElement?.id==="game-name"');
+        await evaluate('window.dispatchEvent(new KeyboardEvent("keydown",{key:"1",ctrlKey:true,bubbles:true}))');
+        checks.push({language,dialogShortcutIsolation:await evaluate('Boolean(document.querySelector(".game-editor")) && document.querySelector("h1").textContent==='+JSON.stringify(language==='es'?'Juegos':'Gaming'))});
+        await screenshot(`gaming-editor-${language}`);await click('document.querySelector(".dialog-heading button")');
+      }
+      const child=spawn(launch.gamePath,['-n','30','127.0.0.1'],{stdio:'ignore',windowsHide:true});children.push(child);await waitCount(1);
+      await click('document.querySelectorAll(".game-actions button")[1]');await click('document.querySelector(".dialog-footer button")');
+      checks.push({removeCancellationKeepsRegistration:(await invoke('get_registered_games')).some(item=>item.id===gameId)});
+      await click('document.querySelectorAll(".game-actions button")[1]');await click('document.querySelector(".dialog-footer .button-primary")');
+      await waitFor('!document.querySelector(".dialog-backdrop")');
+      checks.push({removePreservesRunningProcess:child.exitCode===null && child.signalCode===null,removedFromLibrary:!(await invoke('get_registered_games')).some(item=>item.id===gameId)});
+      checks.push({powerSchemeUnchanged:(await invoke('get_active_power_plan')).guid===originalPlan.guid});
+      await mkdir('artifacts/games',{recursive:true});await writeFile('artifacts/games/native-verification.json',JSON.stringify({checks,errors},null,2));
+      if(checks.some(check=>check.horizontalOverflow||check.documentOverflow||Object.entries(check).some(([key,value])=>value===false&&!['horizontalOverflow','documentOverflow'].includes(key))))throw new Error('Gaming QA checks failed.');
+      if(errors.length)throw new Error('Native Gaming renderer errors: '+errors.join('; '));
+      await mkdir('artifacts/games',{recursive:true});await writeFile('artifacts/games/native-verification.json',JSON.stringify({checks,errors},null,2));console.log(JSON.stringify({passed:checks.length,errors}));
+    }finally{
+      children.forEach(child=>{if(child.exitCode===null)child.kill();});
+      if(gameId&&(await invoke('get_registered_games')).some(item=>item.id===gameId))await invoke('remove_registered_game',{gameId});
+      const after=await invoke('get_registered_games');if(JSON.stringify(after.map(game=>game.id))!==JSON.stringify(before.map(game=>game.id)))throw new Error('Fixture cleanup changed unrelated game registrations.');
+      await invoke('update_settings',{settings:original});await send('Emulation.clearDeviceMetricsOverride');await send('Page.reload');
     }
   } else if (mode === 'eval') {
     console.log(JSON.stringify(await evaluate(process.argv[3])));

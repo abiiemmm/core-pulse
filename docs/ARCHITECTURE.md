@@ -20,6 +20,8 @@ Core Pulse is a Windows desktop application with three components. The React UI 
 
 `sensors.rs` supervises the packaged sensor host with frame validation, process containment, timeouts, and bounded restart backoff. `sidecar/Program.cs` implements the provider. Missing or unverifiable readings remain unavailable; never replace them with zero. Sensor identity must constrain both live readings and retained history.
 
+`games.rs` owns local registrations and ephemeral native-picker tokens. `games/windows.rs` validates PE files, resolves file identity from held handles, and holds read-only process handles so PID reuse does not replace a tracked process. Gaming discovery runs outside the SQLite lock. Registration and matching are independent from the still-pending Auto Boost controller; only the power module may change Windows schemes.
+
 ## Adding a feature
 
 Start with a clear payload and ownership boundary. Add an IPC command only when the UI needs backend behavior, register it in `lib.rs`, and update `api.ts`, `types.ts`, and command checks together. Add database changes through the existing migration mechanism and verify existing data survives. Keep rendering and calculations separate so calculations can be checked without starting the desktop app.

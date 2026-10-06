@@ -24,8 +24,9 @@ fn seed_profiles(conn: &Connection) -> Result<(), String> {
 
 fn migrate(conn: &Connection) -> Result<(), String> {
     let version: i64 = conn.query_row("PRAGMA user_version", [], |r| r.get(0)).map_err(err)?;
-    if version > 1 { return Err("Database dibuat oleh versi aplikasi yang lebih baru".into()); }
-    if version == 1 { return Ok(()); }
+    if version > 2 { return Err("Database dibuat oleh versi aplikasi yang lebih baru".into()); }
+    if version == 2 { return Ok(()); }
+    if version == 1 { return migrate_games(conn); }
     conn.execute_batch(r#"
     BEGIN IMMEDIATE;
     CREATE TABLE app_settings (key TEXT PRIMARY KEY, value TEXT NOT NULL, updated_at TEXT NOT NULL);
@@ -52,7 +53,21 @@ fn migrate(conn: &Connection) -> Result<(), String> {
     PRAGMA user_version=1;
     COMMIT;
     "#).map_err(err)?;
-    Ok(())
+    migrate_games(conn)
+}
+
+fn migrate_games(conn: &Connection) -> Result<(), String> {
+    conn.execute_batch(r#"
+    BEGIN IMMEDIATE;
+    ALTER TABLE registered_games ADD COLUMN executable_identity TEXT NOT NULL DEFAULT '';
+    ALTER TABLE registered_games ADD COLUMN archived INTEGER NOT NULL DEFAULT 0 CHECK(archived IN (0,1));
+    UPDATE registered_games SET auto_boost=0;
+    CREATE UNIQUE INDEX idx_registered_identity ON registered_games(executable_identity) WHERE archived=0 AND executable_identity!='';
+    CREATE INDEX idx_gaming_started ON gaming_sessions(started_at DESC);
+    CREATE INDEX idx_gaming_game_status ON gaming_sessions(game_id,status);
+    PRAGMA user_version=2;
+    COMMIT;
+    "#).map_err(err)
 }
 
 pub fn log(conn: &Connection, event: &str, status: &str, message: &str) {
@@ -226,6 +241,31 @@ pub fn purge_monitoring_history(conn: &mut Connection) -> Result<usize, String> 
 
 #[cfg(test)]
 mod tests {
+
+    #[test]
+    fn version_one_upgrade_preserves_settings_history_and_power_recovery_and_disarms_unverified_games() {
+        let conn=rusqlite::Connection::open_in_memory().unwrap();
+        conn.execute_batch("PRAGMA foreign_keys=ON;").unwrap();
+        conn.execute_batch(include_str!("../../tests/fixtures/schema-v1.sql")).unwrap();
+        super::seed_profiles(&conn).unwrap();
+        let preferences=crate::models::AppSettings {theme:"light".into(),..Default::default()};
+        super::save_settings(&conn,&preferences).unwrap();
+        conn.execute("INSERT INTO registered_games(id,display_name,canonical_executable_path,profile_id,auto_boost,created_at,updated_at) VALUES('legacy','Legacy','C:/game.exe','gaming',1,'2026-01-01','2026-01-01')",[]).unwrap();
+        conn.execute("INSERT INTO gaming_sessions(id,game_id,started_at,status) VALUES('past','legacy','2026-01-01','completed')",[]).unwrap();
+        conn.execute("INSERT INTO tuning_sessions(id,profile_id,previous_scheme_guid,applied_scheme_guid,trigger,status,started_at) VALUES('recovery','gaming','prior','target','manual','active','2026-01-01')",[]).unwrap();
+        super::migrate(&conn).unwrap();
+        assert_eq!(super::load_settings(&conn).theme,"light");
+        let game=crate::games::get_games(&conn).unwrap().remove(0);
+        assert!(!game.auto_boost && game.executable_identity.is_empty());
+        assert_eq!(super::unfinished_sessions(&conn).unwrap()[0].id,"recovery");
+        assert_eq!(conn.query_row("SELECT COUNT(*) FROM gaming_sessions",[],|row|row.get::<_,usize>(0)).unwrap(),1);
+        assert_eq!(conn.query_row("SELECT COUNT(*) FROM pragma_foreign_key_check",[],|row|row.get::<_,usize>(0)).unwrap(),0);
+        assert_eq!(conn.query_row("PRAGMA user_version",[],|row|row.get::<_,u32>(0)).unwrap(),2);
+        super::migrate(&conn).unwrap();
+        conn.execute_batch("PRAGMA user_version=3;").unwrap();
+        assert!(super::migrate(&conn).is_err());
+        assert_eq!(super::load_settings(&conn).theme,"light");
+    }
     use super::*;
 
     #[test]

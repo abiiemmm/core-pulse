@@ -1594,5 +1594,221 @@
   "Suhu GPU memakai inti, atau sensor terpanas bila inti tidak tersedia.": [
     "GPU temperature uses the core, or the hottest sensor when the core is unavailable.",
     "La temperatura de GPU usa el núcleo o el sensor más caliente si el núcleo no está disponible."
+  ],
+  "Gaming": [
+    "Gaming",
+    "Juegos"
+  ],
+  "Pengaturan · Ctrl+9": [
+    "Settings · Ctrl+9",
+    "Ajustes · Ctrl+9"
+  ],
+  "Daftarkan executable dan lihat game yang sedang berjalan.": [
+    "Register executables and see which games are running.",
+    "Registra ejecutables y consulta los juegos en ejecución."
+  ],
+  "Perbarui status game": [
+    "Refresh game status",
+    "Actualizar estado de los juegos"
+  ],
+  "Daftarkan game": [
+    "Register game",
+    "Registrar juego"
+  ],
+  "Daftar game lokal": [
+    "Local game library",
+    "Biblioteca local de juegos"
+  ],
+  "{0} game terdaftar · {1} sedang berjalan": [
+    "{0} registered games · {1} running",
+    "{0} juegos registrados · {1} en ejecución"
+  ],
+  "Pendaftaran game tidak mengubah skema daya.": [
+    "Registering a game does not change the power plan.",
+    "Registrar un juego no cambia el plan de energía."
+  ],
+  "Daftar proses belum lengkap. Status game yang belum terverifikasi tetap ditandai.": [
+    "The process list is incomplete. Unverified game status remains marked.",
+    "La lista de procesos está incompleta. Los juegos sin verificar siguen señalados."
+  ],
+  "Executable terdaftar": [
+    "Registered executables",
+    "Ejecutables registrados"
+  ],
+  "Pencocokan memakai lokasi, identitas file, dan proses yang terverifikasi.": [
+    "Matching uses verified paths, file identities, and processes.",
+    "La detección usa rutas, identidades de archivo y procesos verificados."
+  ],
+  "Diperbarui": [
+    "Updated",
+    "Actualizado"
+  ],
+  "Memuat daftar game": [
+    "Loading games",
+    "Cargando juegos"
+  ],
+  "Membaca pendaftaran game dari perangkat ini.": [
+    "Reading games registered on this device.",
+    "Leyendo los juegos registrados en este dispositivo."
+  ],
+  "Belum ada game terdaftar": [
+    "No registered games",
+    "No hay juegos registrados"
+  ],
+  "Pilih executable game dari drive lokal. Tidak ada game yang diluncurkan atau ditutup oleh aplikasi.": [
+    "Choose a game executable on a local drive. The app does not launch or close games.",
+    "Elige el ejecutable de un juego en una unidad local. La aplicación no inicia ni cierra juegos."
+  ],
+  "Siap dipantau": [
+    "Ready to monitor",
+    "Listo para supervisar"
+  ],
+  "Sedang berjalan": [
+    "Running",
+    "En ejecución"
+  ],
+  "Executable perlu ditinjau": [
+    "Executable needs review",
+    "Revisar ejecutable"
+  ],
+  "Proses belum terverifikasi": [
+    "Process not verified",
+    "Proceso sin verificar"
+  ],
+  "Profil pilihan": [
+    "Selected profile",
+    "Perfil seleccionado"
+  ],
+  "Auto Boost nonaktif": [
+    "Auto Boost off",
+    "Auto Boost desactivado"
+  ],
+  "{0} proses terverifikasi": [
+    "{0} verified processes",
+    "{0} procesos verificados"
+  ],
+  "Edit {0}": [
+    "Edit {0}",
+    "Editar {0}"
+  ],
+  "Edit game": [
+    "Edit game",
+    "Editar juego"
+  ],
+  "Hapus {0} dari daftar": [
+    "Remove {0} from library",
+    "Quitar {0} de la biblioteca"
+  ],
+  "Hapus dari daftar": [
+    "Remove from library",
+    "Quitar de la biblioteca"
+  ],
+  "Executable dengan nama yang sama di lokasi lain tidak dianggap sebagai game terdaftar.": [
+    "An executable with the same name at another location is not a registered game match.",
+    "Un ejecutable con el mismo nombre en otra ubicación no coincide con el juego registrado."
+  ],
+  "Kelola profil daya": [
+    "Manage power profiles",
+    "Gestionar perfiles de energía"
+  ],
+  "Pendaftaran ini tersimpan lokal. Auto Boost tidak diaktifkan.": [
+    "Registration is stored locally. Auto Boost is not enabled.",
+    "El registro se guarda localmente. Auto Boost no se activa."
+  ],
+  "Menyimpan…": [
+    "Saving…",
+    "Guardando…"
+  ],
+  "Simpan game": [
+    "Save game",
+    "Guardar juego"
+  ],
+  "Nama game": [
+    "Game name",
+    "Nombre del juego"
+  ],
+  "File yang berubah atau tidak dapat diverifikasi perlu dipilih ulang.": [
+    "Select the file again if it changes or cannot be verified.",
+    "Vuelve a seleccionar el archivo si cambia o no puede verificarse."
+  ],
+  "Hapus game dari daftar?": [
+    "Remove game from library?",
+    "¿Quitar el juego de la biblioteca?"
+  ],
+  "Executable tidak dihapus dan game tidak dihentikan. Riwayat sesi tetap tersimpan.": [
+    "The executable is not deleted and the game is not stopped. Session history is kept.",
+    "El ejecutable no se elimina y el juego no se detiene. El historial de sesiones se conserva."
+  ],
+  "Pilih file executable Windows (.exe) yang valid": [
+    "Choose a valid Windows executable (.exe)",
+    "Elige un ejecutable válido de Windows (.exe)"
+  ],
+  "Executable tidak dapat dibaca": [
+    "The executable cannot be read",
+    "No se puede leer el ejecutable"
+  ],
+  "Metadata executable tidak tersedia": [
+    "Executable metadata is unavailable",
+    "Los metadatos del ejecutable no están disponibles"
+  ],
+  "Identitas file executable tidak dapat diverifikasi": [
+    "The executable file identity cannot be verified",
+    "No se puede verificar la identidad del archivo ejecutable"
+  ],
+  "Lokasi executable tidak dapat diverifikasi": [
+    "The executable location cannot be verified",
+    "No se puede verificar la ubicación del ejecutable"
+  ],
+  "Daftarkan executable dari drive lokal": [
+    "Register an executable on a local drive",
+    "Registra un ejecutable en una unidad local"
+  ],
+  "Nama game harus berisi 1–100 karakter tanpa karakter kontrol": [
+    "Game names require 1–100 characters without control characters",
+    "El nombre del juego debe tener entre 1 y 100 caracteres sin caracteres de control"
+  ],
+  "Pilih ulang executable sebelum menyimpan game": [
+    "Select the executable again before saving the game",
+    "Vuelve a seleccionar el ejecutable antes de guardar el juego"
+  ],
+  "Pilihan executable kedaluwarsa. Pilih ulang file.": [
+    "Executable selection expired. Select the file again.",
+    "La selección del ejecutable ha caducado. Vuelve a elegir el archivo."
+  ],
+  "Executable berubah sejak dipilih. Pilih ulang file.": [
+    "The executable changed after selection. Select the file again.",
+    "El ejecutable cambió después de seleccionarlo. Vuelve a elegir el archivo."
+  ],
+  "Batas 100 game terdaftar telah tercapai": [
+    "The limit of 100 registered games has been reached",
+    "Se ha alcanzado el límite de 100 juegos registrados"
+  ],
+  "Executable ini sudah terdaftar": [
+    "This executable is already registered",
+    "Este ejecutable ya está registrado"
+  ],
+  "Game tidak ditemukan": [
+    "Game not found",
+    "Juego no encontrado"
+  ],
+  "Identitas game tidak valid": [
+    "Invalid game identity",
+    "Identidad de juego no válida"
+  ],
+  "Executable tidak tersedia atau identitasnya berubah. Daftarkan ulang file.": [
+    "The executable is unavailable or its identity changed. Register the file again.",
+    "El ejecutable no está disponible o su identidad cambió. Vuelve a registrar el archivo."
+  ],
+  "Sebagian proses tidak dapat diverifikasi. Pencocokan nama saja tidak digunakan.": [
+    "Some processes cannot be verified. Names alone are not used for matching.",
+    "No se pueden verificar algunos procesos. Los nombres por sí solos no se usan para detectar juegos."
+  ],
+  "Pilihan executable sedang terbuka": [
+    "The executable picker is already open",
+    "El selector de ejecutables ya está abierto"
+  ],
+  "Pilihan executable tidak dapat dibuka": [
+    "The executable picker could not be opened",
+    "No se pudo abrir el selector de ejecutables"
   ]
 }

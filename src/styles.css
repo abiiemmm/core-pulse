@@ -521,3 +521,35 @@ tbody tr:hover { background: var(--raised); }
  .sensor-provider-status { display:flex; gap:10px; flex:1; min-width:240px; padding-top:6px; color:var(--secondary); font-size:12px; line-height:1.7; }
  .sensor-provider-status strong { color:var(--text); font-weight:500; }
  .sensor-provider-status p { margin:3px 0; }
+
+.gaming-overview { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 24px; margin-bottom: 24px; }
+.gaming-overview-title { display: flex; align-items: center; gap: 15px; }
+.gaming-overview-title strong { display: block; font-size: 17px; font-weight: 500; }
+.gaming-overview-title span { display: block; color: var(--muted); font-size: 12px; margin-top: 5px; }
+.gaming-local { display: flex; gap: 8px; align-items: center; color: var(--muted); font-size: 12px; max-width: 300px; line-height: 1.6; }
+.gaming-local svg, .gaming-error svg { flex-shrink: 0; }
+.gaming-updated { font-size: 11px; white-space: nowrap; }
+.gaming-library > .section-header { padding: 20px 24px; margin: 0; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.game-row { display: flex; align-items: flex-start; gap: 16px; padding: 23px 24px; border-bottom: 1px solid var(--border); }
+.game-row:last-child { border-bottom: 0; }
+.game-icon { width: 40px; height: 40px; border: 1px solid var(--border); border-radius: 7px; display: grid; place-items: center; color: var(--secondary); flex-shrink: 0; }
+.game-details { flex: 1; min-width: 0; }
+.game-name { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.game-name h3 { font-size: 14px; font-weight: 500; margin: 0; overflow-wrap: anywhere; }
+.game-status { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; color: var(--muted); }
+.game-status-running { color: var(--text); }
+.game-path { font-family: var(--mono); color: var(--muted); font-size: 11px; margin: 9px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.game-meta { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 11px; color: var(--muted); line-height: 1.6; }
+.game-actions { display: flex; gap: 5px; flex-shrink: 0; }
+.game-warning { margin: 9px 0 0; font-size: 11px; color: var(--secondary); line-height: 1.6; }
+.gaming-error { display: flex; gap: 9px; align-items: center; font-size: 12px; color: var(--text); margin: 0 0 20px; line-height: 1.6; }
+.gaming-footnote { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; color: var(--muted); font-size: 11px; margin-top: 17px; line-height: 1.7; }
+.gaming-footnote > span { max-width: 600px; }
+.gaming-footnote button { flex-shrink: 0; }
+.game-editor { display: grid; gap: 10px; margin-top: 20px; }
+.game-editor label { color: var(--secondary); font-size: 12px; }
+.game-editor input, .game-editor select { width: 100%; box-sizing: border-box; padding: 10px 12px; margin-bottom: 5px; }
+.game-selected-path { font-family: var(--mono); font-size: 11px; color: var(--muted); overflow-wrap: anywhere; line-height: 1.7; margin: 5px 0 0; }
+.game-editor .field-help { margin: 0; }
+.game-remove-name { margin: 16px 0 0; overflow-wrap: anywhere; }
+@media (max-width: 1000px) { .gaming-overview { flex-wrap: wrap; gap: 18px; } .gaming-local { max-width: none; } .gaming-footnote { flex-wrap: wrap; gap: 10px; } }

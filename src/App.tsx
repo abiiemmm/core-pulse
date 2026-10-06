@@ -22,9 +22,16 @@ export default function App() {
   const viewport = useRef<HTMLElement>(null);
   useEffect(() => { viewport.current?.scrollTo({ top: 0 }); }, [page]);
   useEffect(() => {
+    const revealPage = () => document.querySelector<HTMLElement>('.sidebar nav .nav-item[aria-current="page"]')?.scrollIntoView({ block: 'nearest' });
+    revealPage();
+    window.addEventListener('resize', revealPage);
+    return () => window.removeEventListener('resize', revealPage);
+  }, [page]);
+  useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
+      if (document.querySelector('[aria-modal="true"]') && !commandOpen) return;
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k' && !m.confirmation) { event.preventDefault(); setCommandOpen(previous => !previous); setCommandQuery(''); setCommandIndex(0); }
-      if ((event.ctrlKey || event.metaKey) && !commandOpen && !m.confirmation && /^[1-8]$/.test(event.key)) { event.preventDefault(); setPage(NAV[Number(event.key) - 1].id); }
+      if ((event.ctrlKey || event.metaKey) && !commandOpen && !m.confirmation && /^[1-9]$/.test(event.key)) { event.preventDefault(); setPage(NAV[Number(event.key) - 1].id); }
     };
     window.addEventListener('keydown', onKey); return () => window.removeEventListener('keydown', onKey);
   }, [commandOpen, m.confirmation]);
@@ -41,7 +48,7 @@ export default function App() {
       <div className="brand"><div className="brand-symbol"><Activity size={22} strokeWidth={1.7} /></div><span>Core Pulse<small>{t("PERANGKAT LOKAL")}</small></span></div>
       <button className="command-launch" onClick={openCommands} title={t("Buka halaman atau tindakan (Ctrl+K)")}><Search size={15} /><span>{t("Buka halaman…")}</span><kbd>Ctrl K</kbd></button>
       <nav aria-label={t("Navigasi utama")}>{['Pantau', 'Kelola'].map(group => <div className="nav-group" key={group}><div className="nav-group-title">{t(group)}</div>{NAV.filter(item => item.group === group).map(item => <button key={item.id} className={`nav-item ${page === item.id ? 'is-current' : ''}`} aria-current={page === item.id ? 'page' : undefined} title={`${t(item.label)} · Ctrl+${NAV.indexOf(item) + 1}`} onClick={() => setPage(item.id)}><item.icon size={17} strokeWidth={1.7} /><span>{t(item.label)}</span>{page === item.id && <i />}</button>)}</div>)}</nav>
-      <div className="sidebar-end"><button className={`nav-item ${page === 'settings' ? 'is-current' : ''}`} aria-current={page === 'settings' ? 'page' : undefined} title={t("Pengaturan · Ctrl+8")} onClick={() => setPage('settings')}><Settings2 size={17} /><span>{t("Pengaturan")}</span></button><div className="device-footer"><Monitor size={17} /><div><strong title={m.info?.device_name}>{m.info?.device_name ?? t("Menghubungkan")}</strong><small>{t("Data tersimpan di perangkat")}</small></div></div></div>
+      <div className="sidebar-end"><button className={`nav-item ${page === 'settings' ? 'is-current' : ''}`} aria-current={page === 'settings' ? 'page' : undefined} title={t("Pengaturan · Ctrl+9")} onClick={() => setPage('settings')}><Settings2 size={17} /><span>{t("Pengaturan")}</span></button><div className="device-footer"><Monitor size={17} /><div><strong title={m.info?.device_name}>{m.info?.device_name ?? t("Menghubungkan")}</strong><small>{t("Data tersimpan di perangkat")}</small></div></div></div>
     </aside>
     <div className="workspace">
       <header className="workspace-toolbar"><div className="toolbar-left"><button className="icon-button" aria-label={collapsed ? t("Perluas navigasi") : t("Ringkas navigasi")} aria-expanded={!collapsed} onClick={() => setCollapsed(!collapsed)} title={t("Ringkas navigasi")}><PanelLeft size={17} /></button><span className="toolbar-device">{m.info?.device_name ?? t("Perangkat lokal")}</span><ChevronRight size={13} className="muted" /><span>{t(NAV.find(item => item.id === page)?.label ?? '')}</span></div><div className="toolbar-right"><div className="toolbar-preferences"><button className="theme-switch" aria-label={t('Ganti tema')} title={t('Ganti tema')} disabled={Boolean(m.busy)} onClick={() => void m.saveSettings({ ...m.settings, theme: isDark ? 'light' : 'dark' })}>{isDark ? <Moon size={14} /> : <Sun size={14} />}<span>{t(isDark ? 'Gelap' : 'Terang')}</span></button><select className="language-switch" aria-label={t('Bahasa aplikasi')} title={t('Bahasa aplikasi')} value={language} disabled={Boolean(m.busy)} onChange={event => void m.saveSettings({ ...m.settings, language: event.target.value as typeof language })}>{LANGUAGES.map(item => <option key={item.value} value={item.value}>{item.label}</option>)}</select></div><span className={`connection ${!m.running || m.stale ? 'connection-idle' : ''}`}><i />{m.connectionLabel}</span><button className="icon-button" aria-label={t("Deteksi ulang perangkat")} title={t("Deteksi ulang perangkat")} disabled={Boolean(m.busy)} onClick={() => void m.refreshDetection()}><RefreshCw size={15} className={m.busy === 'detect' ? 'spin' : ''} /></button></div></header>
