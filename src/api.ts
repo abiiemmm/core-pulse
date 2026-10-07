@@ -1,4 +1,4 @@
-import type { AutoBoostStatus, GamingSession, GameSelection, GameSettings, GameSnapshot, RegisteredGame, AnalyticsReport, AppSettings, SensorInventory, Capability, CleanerScan, CleaningResult, CleanupProgress, DeviceInfo, HardwareSnapshot, HistoryPoint, PerformanceProfile, PowerPlan, PersistenceStatus, ProcessSnapshot, TuningSession } from './types';
+import type { DesktopStatus, AutoBoostStatus, GamingSession, GameSelection, GameSettings, GameSnapshot, RegisteredGame, AnalyticsReport, AppSettings, SensorInventory, Capability, CleanerScan, CleaningResult, CleanupProgress, DeviceInfo, HardwareSnapshot, HistoryPoint, PerformanceProfile, PowerPlan, PersistenceStatus, ProcessSnapshot, TuningSession } from './types';
 
 type TauriApi = {
   core: { invoke: <T>(command: string, args?: Record<string, unknown>) => Promise<T> };
@@ -45,7 +45,7 @@ function demoSnapshot(): HardwareSnapshot {
 
 const demoInfo: DeviceInfo = { device_name: 'DESKTOP-DEMO', operating_system: 'Windows 11 Pro', cpu_model: 'Intel Core i7-12700H', cpu_cores: 14, ram_total_bytes: 16 * 1024 ** 3, gpu_adapters: ['Intel UHD Graphics', 'NVIDIA GeForce RTX 3060'], power_source: 'AC power' };
 
-const demoSettings: AppSettings = { refresh_seconds: 1, theme: 'dark', language: 'id', history_retention_hours: 24, monitor_in_background: false, gpu_adapter_id: null };
+const demoSettings: AppSettings = { refresh_seconds: 1, theme: 'dark', language: 'id', history_retention_hours: 24, monitor_in_background: false, close_to_tray: false, gpu_adapter_id: null };
 
 async function invoke<T>(command: string, args?: Record<string, unknown>): Promise<T> {
   if (isDesktop) return window.__TAURI__!.core.invoke<T>(command, args);
@@ -78,12 +78,15 @@ async function invoke<T>(command: string, args?: Record<string, unknown>): Promi
     case 'get_auto_boost_status': return {mode:'idle',tuning_session_id:null,profile_id:null,relevant_games:0,reason:null,error:null,updated_at:now(),discovery_status:'ready',discovery_message:null} as T;
     case 'get_game_status': return { recorded_at: now(), status: 'demo', games: [] } as T;
     case 'scan_cleanable_files': return { plan_id: 'demo', expires_at: new Date(Date.now() + 300000).toISOString(), category: 'user_temp', estimated_bytes: 0, eligible_count: 0, skipped_count: 0, warnings: ['Pratinjau web tidak memindai file di komputer.'] } as T;
+    case 'get_desktop_status': return {tray_available:false,window_visible:true,window_minimized:false} as T;
     case 'start_monitoring': case 'stop_monitoring': return undefined as T;
     default: throw new Error('Tindakan ini hanya tersedia di aplikasi desktop.');
   }
 }
 
 export const api = {
+  getDesktopStatus: () => invoke<DesktopStatus>('get_desktop_status'),
+  quitApplication: () => invoke<void>('quit_application'),
   getAutoBoost: () => invoke<AutoBoostStatus>('get_auto_boost_status'),
   setAutoBoost: (gameId: string, enabled: boolean, expected: GameSettings) => invoke<RegisteredGame>('set_auto_boost', {gameId, enabled, expected}),
   getGamingSessions: () => invoke<GamingSession[]>('get_gaming_sessions'),

@@ -387,10 +387,22 @@ mod tests {
         assert_eq!(settings.language,"id");
         assert_eq!(settings.theme,"light");
         assert_eq!(settings.refresh_seconds,5);
+        assert!(settings.monitor_in_background);
+        assert!(!settings.close_to_tray);
         assert!(settings.validate().is_ok());
         let mut unsupported = settings;
         unsupported.language = "unknown".into();
         assert!(unsupported.validate().is_err());
+    }
+
+    #[test]
+    fn tray_preferences_round_trip_without_resetting_existing_settings() {
+        let conn = Connection::open_in_memory().unwrap();
+        migrate(&conn).unwrap();
+        let settings = AppSettings { close_to_tray: true, monitor_in_background: true, language: "es".into(), theme: "light".into(), refresh_seconds: 5, history_retention_hours: 72, ..Default::default() };
+        save_settings(&conn, &settings).unwrap();
+        let loaded = load_settings(&conn);
+        assert_eq!(serde_json::to_value(loaded).unwrap(), serde_json::to_value(settings).unwrap());
     }
 
     #[test]

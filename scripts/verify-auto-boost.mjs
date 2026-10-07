@@ -5,7 +5,7 @@ import { spawn, execFile } from 'node:child_process';
 import { resolve } from 'node:path';
 import { promisify } from 'node:util';
 
-export async function verifyAutoBoost({ send, evaluate, delay, errors }) {
+export async function verifyAutoBoost({ send, evaluate, delay, errors, shutdownViaTray=false }) {
   assert(await evaluate('Boolean(window.__TAURI__?.core?.invoke)'), 'Native Tauri required');
   const launch=JSON.parse((await readFile('artifacts/auto-boost/native-launch.json','utf8')).replace(/^\uFEFF/,''));
   const fixtureRoot=resolve('artifacts/games')+'\\';
@@ -129,10 +129,18 @@ export async function verifyAutoBoost({ send, evaluate, delay, errors }) {
     check('new cycle selects newly started profile',closing.tuning_session_id!==first.tuning_session_id);
     check('original Windows scheme unchanged',(await invoke('get_active_power_plan')).guid===originalPlan.guid);
     assert.equal(errors.length,0,'Native renderer errors');
-    await invoke('update_settings',{settings:originalSettings});await send('Emulation.clearDeviceMetricsOverride');
-    await writeFile('artifacts/auto-boost/shutdown-expectation.json',JSON.stringify({appPid:launch.appPid,vitePid:launch.vitePid,childPid:closingGame.pid,gameIds:games.map(game=>game.id),gameNames:games.map(game=>game.display_name),tuningSessionId:closing.tuning_session_id,previousTuningSessionId:first.tuning_session_id,originalPlan,originalSettings,originalProfiles,originalGameIds:before.map(game=>game.id)},null,2));
-    await windowAction('Close');
-    check('graceful close does not terminate game',closingGame.exitCode===null&&closingGame.signalCode===null);
+    const preferencesBeforeExit={...originalSettings,close_to_tray:shutdownViaTray};
+    await invoke('update_settings',{settings:preferencesBeforeExit});await send('Emulation.clearDeviceMetricsOverride');
+    await writeFile('artifacts/auto-boost/shutdown-expectation.json',JSON.stringify({appPid:launch.appPid,vitePid:launch.vitePid,childPid:closingGame.pid,gameIds:games.map(game=>game.id),gameNames:games.map(game=>game.display_name),tuningSessionId:closing.tuning_session_id,previousTuningSessionId:first.tuning_session_id,originalPlan,originalSettings,preferencesBeforeExit,exitSource:shutdownViaTray?'tray_menu':'window_close',originalProfiles,originalGameIds:before.map(game=>game.id)},null,2));
+    if(shutdownViaTray) {
+      const trayAction=action=>promisify(execFile)('powershell',['-NoProfile','-ExecutionPolicy','Bypass','-File','scripts/control-qa-tray.ps1','-AppProcessId',String(launch.appPid),'-Action',action,'-Language',originalSettings.language],{windowsHide:true});
+      await trayAction('HideOnClose');
+      check('close-to-tray keeps native window hidden and live',!(await invoke('get_desktop_status')).window_visible);
+      await delay(2200);
+      check('hidden window retains automatic tuning owner',(await auto()).tuning_session_id===closing.tuning_session_id&&(await auto()).mode==='active');
+      await trayAction('SelectQuit');
+    } else await windowAction('Close');
+    check('graceful exit does not terminate game',closingGame.exitCode===null&&closingGame.signalCode===null);
     // Keep the spawning Node process alive until shutdown, so its console/job
     // lifetime cannot accidentally end the fixture before the app closes.
     await promisify(execFile)('python',['scripts/verify-auto-shutdown.py']);

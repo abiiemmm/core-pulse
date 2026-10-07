@@ -479,9 +479,15 @@ try {
       const after=await invoke('get_registered_games');if(JSON.stringify(after.map(game=>game.id))!==JSON.stringify(before.map(game=>game.id)))throw new Error('Fixture cleanup changed unrelated game registrations.');
       await invoke('update_settings',{settings:original});await send('Emulation.clearDeviceMetricsOverride');await send('Page.reload');
     }
-  } else if (mode === 'auto-boost') {
+  } else if (mode === 'tray-quit-ui') {
+    const { verifyTrayQuitUi } = await import('./verify-tray.mjs');
+    await verifyTrayQuitUi({ send, evaluate, delay, errors });
+  } else if (mode === 'tray') {
+    const { verifyTray } = await import('./verify-tray.mjs');
+    await verifyTray({ send, evaluate, delay, errors });
+  } else if (mode === 'auto-boost' || mode === 'auto-boost-tray') {
     const { verifyAutoBoost } = await import('./verify-auto-boost.mjs');
-    await verifyAutoBoost({ send, evaluate, delay, errors });
+    await verifyAutoBoost({ send, evaluate, delay, errors, shutdownViaTray: mode === 'auto-boost-tray' });
   } else if (mode === 'eval') {
     console.log(JSON.stringify(await evaluate(process.argv[3])));
   }

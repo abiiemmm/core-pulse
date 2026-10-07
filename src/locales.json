@@ -2086,5 +2086,77 @@
   "Pemeriksaan proses belum lengkap. Jumlah yang ditampilkan hanya proses terverifikasi.": [
     "Process checks are incomplete. Only verified processes are counted.",
     "La comprobación de procesos está incompleta. Solo se cuentan los procesos verificados."
+  ],
+  "Jendela & system tray": [
+    "Window & system tray",
+    "Ventana y bandeja del sistema"
+  ],
+  "Atur perilaku saat jendela ditutup.": [
+    "Choose what happens when you close the window.",
+    "Elige qué ocurre al cerrar la ventana."
+  ],
+  "Tutup ke system tray": [
+    "Close to system tray",
+    "Cerrar a la bandeja del sistema"
+  ],
+  "Tombol X menyembunyikan jendela. Klik ikon Core Pulse di tray untuk membukanya kembali.": [
+    "The X button hides the window. Click the Core Pulse tray icon to open it again.",
+    "El botón X oculta la ventana. Haz clic en el icono de Core Pulse en la bandeja para volver a abrirla."
+  ],
+  "System tray tidak tersedia. Jendela tetap dapat ditutup untuk keluar.": [
+    "The system tray is unavailable. Closing the window still quits the app.",
+    "La bandeja del sistema no está disponible. Cerrar la ventana sigue cerrando la aplicación."
+  ],
+  "System tray tersedia di aplikasi desktop Windows.": [
+    "The system tray is available in the Windows desktop app.",
+    "La bandeja del sistema está disponible en la aplicación de escritorio de Windows."
+  ],
+  "Auto Boost dan perlindungan AC tetap berjalan saat jendela tersembunyi. Monitoring mengikuti pilihan latar belakang.": [
+    "Auto Boost and AC protection continue while the window is hidden. Monitoring follows your background preference.",
+    "Auto Boost y la protección de corriente siguen activos con la ventana oculta. El monitoreo sigue tu preferencia de segundo plano."
+  ],
+  "Keluar sepenuhnya": [
+    "Quit completely",
+    "Salir completamente"
+  ],
+  "Hentikan aplikasi melalui tombol ini atau menu keluar di tray.": [
+    "Quit using this button or the tray menu.",
+    "Sal de la aplicación con este botón o el menú de la bandeja."
+  ],
+  "Keluar dari Core Pulse": [
+    "Quit Core Pulse",
+    "Salir de Core Pulse"
+  ],
+  "Keluar dari Core Pulse?": [
+    "Quit Core Pulse?",
+    "¿Salir de Core Pulse?"
+  ],
+  "Monitoring dan Auto Boost akan berhenti. Pemulihan profil mengikuti aturan sesi yang aktif.": [
+    "Monitoring and Auto Boost will stop. Profile restoration follows the active session rules.",
+    "El monitoreo y Auto Boost se detendrán. La restauración del perfil sigue las reglas de la sesión activa."
+  ],
+  "Terus ambil data saat jendela diminimalkan atau disembunyikan di tray.": [
+    "Keep collecting data when the window is minimized or hidden in the tray.",
+    "Sigue recopilando datos cuando la ventana esté minimizada u oculta en la bandeja."
+  ],
+  "Jendela utama tidak tersedia": [
+    "The main window is unavailable",
+    "La ventana principal no está disponible"
+  ],
+  "Jendela utama tidak dapat dibuka kembali": [
+    "The main window could not be reopened",
+    "No se pudo volver a abrir la ventana principal"
+  ],
+  "Status jendela tidak tersedia": [
+    "Window status is unavailable",
+    "El estado de la ventana no está disponible"
+  ],
+  "Bahasa menu system tray belum diperbarui": [
+    "The system tray menu language could not be updated",
+    "No se pudo actualizar el idioma del menú de la bandeja"
+  ],
+  "Jendela tidak dapat disembunyikan. Aplikasi akan ditutup.": [
+    "The window could not be hidden. The app will quit.",
+    "No se pudo ocultar la ventana. La aplicación se cerrará."
   ]
 }

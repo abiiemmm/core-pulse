@@ -1,7 +1,7 @@
 import { getLanguage, setLanguage, t } from './i18n';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { api, isDesktop, onAppError, onCleanupProgress, onDeviceChanged, onHardwareUpdate, onPersistenceStatus, onSensorStatus, onTuningChanged } from './api';
-import type { AppSettings, SensorInventory, Capability, CleanerScan, CleaningResult, CleanupProgress, DeviceInfo, HardwareSnapshot, PerformanceProfile, PowerPlan, PersistenceStatus, TuningSession } from './types';
+import type { DesktopStatus, AppSettings, SensorInventory, Capability, CleanerScan, CleaningResult, CleanupProgress, DeviceInfo, HardwareSnapshot, PerformanceProfile, PowerPlan, PersistenceStatus, TuningSession } from './types';
 import { formatBytes } from './ui';
 
 export type Sensor = 'cpu' | 'gpu' | 'ram';
@@ -20,7 +20,8 @@ export function usePulse() {
   const [plans, setPlans] = useState<PowerPlan[]>([]);
   const [profiles, setProfiles] = useState<PerformanceProfile[]>([]);
   const [sessions, setSessions] = useState<TuningSession[]>([]);
-  const [settings, setSettings] = useState<AppSettings>({ refresh_seconds: 1, theme: 'dark', language: getLanguage(), history_retention_hours: 24, monitor_in_background: false, gpu_adapter_id: null });
+  const [settings, setSettings] = useState<AppSettings>({ refresh_seconds: 1, theme: 'dark', language: getLanguage(), history_retention_hours: 24, monitor_in_background: false, close_to_tray: false, gpu_adapter_id: null });
+  const [desktopStatus, setDesktopStatus] = useState<DesktopStatus>({tray_available:false,window_visible:true,window_minimized:false});
   const [sensorInventory, setSensorInventory] = useState<SensorInventory>({status:isDesktop ? 'waiting' : 'demo',message:'',provider:'LibreHardwareMonitor 0.9.6',elevated:false,restart_count:0,updated_at:new Date(0).toISOString(),devices:[]});
   const gpuSourceKey = settings.gpu_adapter_id ?? [...sensorInventory.devices].filter(device => device.kind === 'gpu').sort((a,b) => (a.id.startsWith('/gpu-nvidia/') ? 0 : a.id.startsWith('/gpu-amd/') ? 1 : 2) - (b.id.startsWith('/gpu-nvidia/') ? 0 : b.id.startsWith('/gpu-amd/') ? 1 : 2) || a.id.localeCompare(b.id))[0]?.id ?? '';
   const gpuIdentity = useRef(gpuSourceKey);
@@ -35,14 +36,14 @@ export function usePulse() {
   const [cleanupProgress, setCleanupProgress] = useState<CleanupProgress>();
   const [cancelRequested, setCancelRequested] = useState(false);
   const cleanupPlan = useRef<string | null>(null);
-  const [confirmation, setConfirmation] = useState<'clean' | 'purge' | 'restore' | null>(null);
+  const [confirmation, setConfirmation] = useState<'clean' | 'purge' | 'restore' | 'quit' | null>(null);
   const [selectedProfile, setSelectedProfile] = useState('gaming');
   const [clock, setClock] = useState(Date.now());
   const [systemLight, setSystemLight] = useState(() => window.matchMedia('(prefers-color-scheme: light)').matches);
   const notify = useCallback((text: string, error = false) => setMessage({ text, error }), []);
   const acceptPersistence = useCallback((status: PersistenceStatus) => setPersistence(previous => Date.parse(previous.updated_at) > Date.parse(status.updated_at) ? previous : status), []);
   const refreshContext = useCallback(async () => {
-    const results = await Promise.allSettled([api.getInfo(), api.getCapabilities(), api.getPlans(), api.getProfiles(), api.getUnfinishedSessions(), api.getCleaningHistory(), api.getSettings(), api.getPersistence(), api.getSensors()]);
+    const results = await Promise.allSettled([api.getInfo(), api.getCapabilities(), api.getPlans(), api.getProfiles(), api.getUnfinishedSessions(), api.getCleaningHistory(), api.getSettings(), api.getPersistence(), api.getSensors(), api.getDesktopStatus()]);
     if (results[0].status === 'fulfilled') setInfo(results[0].value);
     if (results[1].status === 'fulfilled') setCapabilities(results[1].value);
     if (results[2].status === 'fulfilled') setPlans(results[2].value);
@@ -52,6 +53,7 @@ export function usePulse() {
     if (results[6].status === 'fulfilled') setSettings(results[6].value);
     if (results[7].status === 'fulfilled') acceptPersistence(results[7].value);
     if (results[8].status === 'fulfilled') setSensorInventory(results[8].value);
+    if (results[9].status === 'fulfilled') setDesktopStatus(results[9].value);
     const error = results.find(result => result.status === 'rejected');
     if (error?.status === 'rejected') notify(String(error.reason), true);
   }, [notify, acceptPersistence]);
@@ -147,7 +149,8 @@ export function usePulse() {
     catch (error) { notify(t(String(error)), true); } finally { setScan(undefined); setBusy(''); }
   }
   async function cancelClean() { if (cancelRequested) return; setCancelRequested(true); try { await api.cancelCleaner(); notify(t("Permintaan pembatalan dikirim. File yang sudah dihapus tetap terhapus.")); } catch (error) { setCancelRequested(false); notify(t(String(error)), true); } }
+  async function quitApplication() { setConfirmation(null); setBusy('quit'); try { await api.quitApplication(); } catch (error) { notify(t(String(error)), true); setBusy(''); } }
   async function purgeHistory() { setConfirmation(null); setBusy('purge'); try { const count = await api.purgeMonitoringHistory(); setSamples([]); notify(t("{0} sampel monitoring dihapus.", { 0: count })); } catch (error) { notify(t(String(error)), true); } finally { setBusy(''); } }
-  return { snapshot, info, sensorInventory, gpuSourceKey, capabilities, plans, profiles, settings, resolvedTheme, samples, running, setRunning, busy, message, setMessage, scan, cleanHistory, persistence, cleanupProgress, cancelRequested, confirmation, setConfirmation, selectedProfile, setSelectedProfile, activePlan, activeSession, selectedMapping, stale, connectionLabel, diskPercent, freeDisk, expiredScan, canClean, refreshDetection, refreshContext, saveSettings, mapProfile, activate, restore, startScan, clean, cancelClean, purgeHistory, notify };
+  return { desktopStatus, quitApplication, snapshot, info, sensorInventory, gpuSourceKey, capabilities, plans, profiles, settings, resolvedTheme, samples, running, setRunning, busy, message, setMessage, scan, cleanHistory, persistence, cleanupProgress, cancelRequested, confirmation, setConfirmation, selectedProfile, setSelectedProfile, activePlan, activeSession, selectedMapping, stale, connectionLabel, diskPercent, freeDisk, expiredScan, canClean, refreshDetection, refreshContext, saveSettings, mapProfile, activate, restore, startScan, clean, cancelClean, purgeHistory, notify };
 }
 export type PulseModel = ReturnType<typeof usePulse>;

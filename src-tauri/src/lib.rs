@@ -9,6 +9,7 @@ mod processes;
 mod sensors;
 mod games;
 mod automation;
+mod desktop;
 
 use crate::models::*;
 use chrono::Utc;
@@ -59,8 +60,9 @@ fn start_sampler(inner: Arc<Inner>, app: tauri::AppHandle) {
         loop {
             thread::sleep(Duration::from_millis(200));
             let settings = match inner.settings.lock() { Ok(s) => s.clone(), Err(_) => continue };
-            let minimized = app.get_webview_window("main").and_then(|w| w.is_minimized().ok()).unwrap_or(false);
-            let enabled = inner.monitoring.load(Ordering::Relaxed) && (!minimized || settings.monitor_in_background);
+            if inner.closing.load(Ordering::Acquire) != 0 { inner.sensors.configure(false, settings.refresh_seconds); return; }
+            let presence = app.get_webview_window("main").and_then(|w| w.is_visible().ok().zip(w.is_minimized().ok()));
+            let enabled = desktop::sampling_enabled(inner.monitoring.load(Ordering::Relaxed), settings.monitor_in_background, presence);
             inner.sensors.configure(enabled, settings.refresh_seconds);
             if !enabled { continue; }
             if last_sample.elapsed() < Duration::from_secs(settings.refresh_seconds as u64) { continue; }
@@ -336,10 +338,11 @@ async fn get_cleaning_history(state: State<'_, AppState>) -> Result<Vec<Cleaning
 #[tauri::command]
 fn get_settings(state: State<'_, AppState>) -> Result<AppSettings, String> { state.inner.settings.lock().map(|s| s.clone()).map_err(|_| lock_error()) }
 #[tauri::command]
-async fn update_settings(state: State<'_, AppState>, settings: AppSettings) -> Result<AppSettings, String> {
+async fn update_settings(state: State<'_, AppState>, app: tauri::AppHandle, settings: AppSettings) -> Result<AppSettings, String> {
     settings.validate()?;
+    if settings.close_to_tray && !app.state::<desktop::Tray>().available() { return Err("System tray tidak tersedia. Jendela tetap dapat ditutup untuk keluar.".into()); }
     let inner = state.inner.clone();
-    tauri::async_runtime::spawn_blocking(move || {
+    let saved = tauri::async_runtime::spawn_blocking(move || -> Result<AppSettings, String> {
         // Serialize durable preferences and their cache without blocking sampling.
         let _update = inner.settings_update.lock().map_err(|_| lock_error())?;
         let previous = inner.settings.lock().map_err(|_| lock_error())?.clone();
@@ -352,8 +355,14 @@ async fn update_settings(state: State<'_, AppState>, settings: AppSettings) -> R
         inner.history_writer.set_retention(settings.history_retention_hours);
         *inner.settings.lock().map_err(|_| lock_error())? = settings.clone();
         Ok(settings)
-    }).await.map_err(|error| error.to_string())?
+    }).await.map_err(|error| error.to_string())??;
+    desktop::refresh_labels(&app);
+    Ok(saved)
 }
+#[tauri::command]
+fn get_desktop_status(app: tauri::AppHandle) -> Result<desktop::Status, String> { desktop::status(&app) }
+#[tauri::command]
+fn quit_application(app: tauri::AppHandle) { desktop::quit_application(&app); }
 #[tauri::command]
 async fn purge_monitoring_history(state: State<'_, AppState>) -> Result<usize, String> {
     let inner = state.inner.clone();
@@ -380,11 +389,7 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
-            if let Some(window) = app.get_webview_window("main") {
-                let _ = window.show();
-                let _ = window.unminimize();
-                let _ = window.set_focus();
-            }
+            if let Err(error) = desktop::show_main(app) { desktop::report(app, &error); }
         }))
         .setup(|app| {
             let data_dir = app.path().app_data_dir()?;
@@ -392,6 +397,7 @@ pub fn run() {
             let db_path = data_dir.join("performance.db");
             let conn = db::open(&db_path).map_err(std::io::Error::other)?;
             let settings = db::load_settings(&conn);
+            app.manage(desktop::Tray::install(app.handle(), &settings.language));
             let info = hardware::initial_information();
             let capabilities = hardware::capabilities(&info,power::plans().map(|p| !p.is_empty()).unwrap_or(false));
             let initial = empty_snapshot(&info);
@@ -423,14 +429,24 @@ pub fn run() {
             });
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![set_auto_boost,get_auto_boost_status,get_gaming_sessions,delete_gaming_session,pick_game_executable,register_game,get_registered_games,update_registered_game,remove_registered_game,get_game_status,get_sensor_inventory,get_process_snapshot,get_system_information,detect_hardware,get_device_capabilities,get_hardware_snapshot,start_monitoring,stop_monitoring,get_hardware_history,get_analytics_report,get_power_plans,get_active_power_plan,get_performance_profiles,update_profile_mapping,get_unfinished_tuning_sessions,activate_performance_profile,restore_previous_profile,scan_cleanable_files,execute_cleanup,cancel_cleanup,get_cleaning_history,get_settings,update_settings,purge_monitoring_history,get_monitoring_persistence])
+        .invoke_handler(tauri::generate_handler![get_desktop_status,quit_application,set_auto_boost,get_auto_boost_status,get_gaming_sessions,delete_gaming_session,pick_game_executable,register_game,get_registered_games,update_registered_game,remove_registered_game,get_game_status,get_sensor_inventory,get_process_snapshot,get_system_information,detect_hardware,get_device_capabilities,get_hardware_snapshot,start_monitoring,stop_monitoring,get_hardware_history,get_analytics_report,get_power_plans,get_active_power_plan,get_performance_profiles,update_profile_mapping,get_unfinished_tuning_sessions,activate_performance_profile,restore_previous_profile,scan_cleanable_files,execute_cleanup,cancel_cleanup,get_cleaning_history,get_settings,update_settings,purge_monitoring_history,get_monitoring_persistence])
         .build(tauri::generate_context!())
         .expect("Core Pulse failed to start")
         .run(|app,event| {
             let state=app.state::<AppState>();
             match event {
                 tauri::RunEvent::WindowEvent { label,event:tauri::WindowEvent::CloseRequested { api,.. },.. } if label=="main" && state.inner.closing.load(Ordering::Acquire)!=2 => {
-                    api.prevent_close();begin_shutdown(app,state.inner.clone(),0);
+                    api.prevent_close();
+                    let close_to_tray=state.inner.settings.lock().map(|settings|settings.close_to_tray).unwrap_or(false);
+                    match desktop::close_action(state.inner.closing.load(Ordering::Acquire),close_to_tray,app.state::<desktop::Tray>().available()) {
+                        desktop::CloseAction::Hide => {
+                            if app.get_webview_window("main").is_some_and(|window|window.hide().is_ok()) { return; }
+                            desktop::report(app,"Jendela tidak dapat disembunyikan. Aplikasi akan ditutup.");
+                            begin_shutdown(app,state.inner.clone(),0);
+                        },
+                        desktop::CloseAction::Shutdown => begin_shutdown(app,state.inner.clone(),0),
+                        _=>{},
+                    }
                 },
                 tauri::RunEvent::ExitRequested { code,api,.. } if state.inner.closing.load(Ordering::Acquire)!=2 => {
                     api.prevent_exit();begin_shutdown(app,state.inner.clone(),code.unwrap_or(0));

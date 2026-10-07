@@ -154,11 +154,13 @@ pub struct AppSettings {
     pub history_retention_hours: u32,
     pub monitor_in_background: bool,
     #[serde(default)]
+    pub close_to_tray: bool,
+    #[serde(default)]
     pub gpu_adapter_id: Option<String>,
 }
 impl Default for AppSettings {
     fn default() -> Self {
-        Self { refresh_seconds: 1, theme: "dark".into(), language: default_language(), history_retention_hours: 24, monitor_in_background: false, gpu_adapter_id: None }
+        Self { refresh_seconds: 1, theme: "dark".into(), language: default_language(), history_retention_hours: 24, monitor_in_background: false, close_to_tray: false, gpu_adapter_id: None }
     }
 }
 impl AppSettings {

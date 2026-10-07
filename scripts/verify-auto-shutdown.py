@@ -53,7 +53,7 @@ with conn:
             if row[1] == profile_id and row[2] in ['scheme_guid', 'ac_only']:
                 conn.execute('insert into profile_settings values(?,?,?,?)', row)
     prefs = conn.execute("select value from app_settings where key='preferences'").fetchone()
-    assert prefs and json.loads(prefs[0]) == expected['originalSettings'], 'Preferences changed during QA'
+    assert prefs and json.loads(prefs[0]) == expected.get('preferencesBeforeExit', expected['originalSettings']), 'Preferences changed during QA'
     conn.execute("delete from app_settings where key='preferences'")
     for row in baseline['app_settings']:
         if row[0] == 'preferences':
@@ -65,6 +65,6 @@ with conn:
     assert sorted(conn.execute('select * from app_settings').fetchall()) == sorted(map(tuple, baseline['app_settings']))
 assert conn.execute('pragma quick_check').fetchone()[0] == 'ok'
 conn.close()
-result = {'cleanupOnly': cleanup_only, 'gracefulCloseRestored': not cleanup_only, 'closedHistoryDurable': not cleanup_only, 'previousRecoveryRecordsPreserved': True, 'originalPreferencesAndMappingsRestored': True, 'fixtureRegistrationsAndHistoryRemoved': True, 'hardwareSamplesPreserved': True, 'foreignKeysValid': True, 'originalPowerGuidUnchanged': True, 'shutdownSession': expected['tuningSessionId']}
+result = {'cleanupOnly': cleanup_only, 'exitSource': expected.get('exitSource', 'window_close'), 'gracefulCloseRestored': not cleanup_only, 'closedHistoryDurable': not cleanup_only, 'previousRecoveryRecordsPreserved': True, 'originalPreferencesAndMappingsRestored': True, 'fixtureRegistrationsAndHistoryRemoved': True, 'hardwareSamplesPreserved': True, 'foreignKeysValid': True, 'originalPowerGuidUnchanged': True, 'shutdownSession': expected['tuningSessionId']}
 (root / ('fixture-cleanup.json' if cleanup_only else 'shutdown-verification.json')).write_text(json.dumps(result, indent=2), encoding='utf-8')
 print(json.dumps(result))

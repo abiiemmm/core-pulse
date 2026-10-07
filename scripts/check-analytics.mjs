@@ -21,8 +21,8 @@ for(const [key,translations] of Object.entries(messages)) {
   assert.equal(translations.length,2,key);
   for(const translation of translations) assert.deepEqual((translation.match(/\{\w+\}/g)??[]).sort(),(key.match(/\{\w+\}/g)??[]).sort(),key);
 }
-for (const file of ['src/Processes.tsx', 'src/SensorPanel.tsx', 'src/Gaming.tsx']) for (const [, key] of fs.readFileSync(file,'utf8').matchAll(/\bt\('([^']+)'/g)) {
+for (const file of ['src/Processes.tsx', 'src/SensorPanel.tsx', 'src/Gaming.tsx', 'src/DesktopSettings.tsx']) for (const [, key] of fs.readFileSync(file,'utf8').matchAll(/\bt\('([^']+)'/g)) {
   assert(messages[key], `Process translation missing: ${key}`);
-  for (const translation of messages[key]) assert(!translation.includes('?') && !translation.includes('\uFFFD'), `Damaged process translation: ${key}`);
+  for (const translation of messages[key]) assert(!translation.includes('?') && !translation.includes('\uFFFD'), `Damaged translation: ${key}`);
 }
 console.log('Analytics weighting, missing data, zero values, CSV, and translation placeholders passed.');
