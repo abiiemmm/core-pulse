@@ -16,6 +16,22 @@ use windows::{Executable, Process};
 const SELECTION_TTL: Duration = Duration::from_secs(300);
 const MAX_GAMES: usize = 100;
 const MAX_PROCESSES: usize = 8192;
+const MAX_NEW_INSPECTIONS: usize = 256;
+const MAX_TRACKED_PROCESSES: usize = 512;
+
+#[derive(Clone, Copy)]
+struct PollBudget {
+    inspections: usize,
+    tracked: usize,
+}
+impl Default for PollBudget {
+    fn default() -> Self {
+        Self {
+            inspections: MAX_NEW_INSPECTIONS,
+            tracked: MAX_TRACKED_PROCESSES,
+        }
+    }
+}
 
 #[derive(Clone, Serialize)]
 pub struct Selection {
@@ -88,6 +104,9 @@ pub struct Registry {
     selection: HashMap<String, PendingSelection>,
     processes: HashMap<String, Vec<Arc<Process>>>,
     previous: Option<(Instant, Snapshot)>,
+    candidate_cursor: u32,
+    #[cfg(test)]
+    last_inspections: usize,
 }
 impl Registry {
     // Only the native file-picker calls this method; IPC accepts its opaque token.
@@ -224,6 +243,13 @@ impl Registry {
         Ok(())
     }
     pub fn snapshot(&mut self, games: Vec<RegisteredGame>) -> Result<Snapshot, String> {
+        self.snapshot_with_budget(games, PollBudget::default())
+    }
+    fn snapshot_with_budget(
+        &mut self,
+        games: Vec<RegisteredGame>,
+        budget: PollBudget,
+    ) -> Result<Snapshot, String> {
         if let Some((at, previous)) = &self.previous {
             if at.elapsed() < Duration::from_secs(2) {
                 return Ok(previous.clone());
@@ -234,6 +260,16 @@ impl Registry {
             processes.retain(|process| process.alive());
             ids.contains(id)
         });
+        let mut tracked = self.processes.values().map(Vec::len).sum::<usize>();
+        // A still-live held handle proves this PID has not been reused. Skip
+        // reopening it; unknown wait results must be inspected conservatively.
+        let known: HashSet<_> = self
+            .processes
+            .values()
+            .flatten()
+            .filter(|process| process.verified_alive())
+            .map(|process| process.pid)
+            .collect();
         let names: HashSet<_> = games
             .iter()
             .map(|game| {
@@ -246,6 +282,7 @@ impl Registry {
             .collect();
         let mut candidates = vec![];
         let mut complete = true;
+        let mut limited_names = HashSet::new();
         if !games.is_empty() {
             let mut system = System::new();
             system.refresh_processes_specifics(
@@ -256,15 +293,29 @@ impl Registry {
             complete = !system.processes().is_empty() && system.processes().len() <= MAX_PROCESSES;
             let mut listed: Vec<_> = system.processes().iter().collect();
             listed.sort_by_key(|(pid, _)| pid.as_u32());
-            for (pid, process) in listed.into_iter().take(MAX_PROCESSES) {
+            listed.truncate(MAX_PROCESSES);
+            let split = listed.partition_point(|(pid, _)| pid.as_u32() <= self.candidate_cursor);
+            // Rotate within the bounded list so repeated unrelated same-name
+            // processes do not permanently starve a later verified game.
+            for (pid, process) in listed[split..].iter().chain(&listed[..split]) {
                 let name = process.name().to_string_lossy().to_lowercase();
-                if names.contains(&name) {
+                if names.contains(&name) && !known.contains(&pid.as_u32()) {
+                    if candidates.len() >= budget.inspections || tracked >= budget.tracked {
+                        limited_names.insert(name);
+                        continue;
+                    }
+                    self.candidate_cursor = pid.as_u32();
                     // A name is only a prefilter. The held process handle, creation
                     // time, canonical path, and file ID supply the actual match.
                     candidates.push((name, Process::open(pid.as_u32())));
                 }
             }
         }
+        #[cfg(test)]
+        {
+            self.last_inspections = candidates.len();
+        }
+        let mut incomplete = !complete || !limited_names.is_empty();
         let mut statuses = vec![];
         for game in games {
             let expected = game.executable();
@@ -275,7 +326,7 @@ impl Registry {
                 .unwrap_or_default()
                 .to_string_lossy()
                 .to_lowercase();
-            let mut uncertain = !complete;
+            let mut uncertain = !complete || limited_names.contains(&basename);
             let running = self.processes.entry(game.id.clone()).or_default();
             for (name, candidate) in &mut candidates {
                 if name != &basename {
@@ -289,10 +340,15 @@ impl Registry {
                                 known.pid == process.pid && known.created == process.created
                             }) =>
                     {
+                        if tracked >= budget.tracked {
+                            uncertain = true;
+                            continue;
+                        }
                         // Move the checked handle without reopening a potentially
                         // reused PID. Other registered files cannot share its ID.
                         if let Ok(process) = std::mem::replace(candidate, Err(String::new())) {
                             running.push(Arc::new(process));
+                            tracked += 1;
                         }
                     }
                     Err(error) if !error.is_empty() => uncertain = true,
@@ -308,7 +364,17 @@ impl Registry {
             } else {
                 "ready"
             };
-            let message=match status {"unavailable"=>Some("Executable tidak tersedia atau identitasnya berubah. Daftarkan ulang file.".into()),"unverified"=>Some("Sebagian proses tidak dapat diverifikasi. Pencocokan nama saja tidak digunakan.".into()),_=>None};
+            incomplete |= uncertain;
+            let message = if status == "unavailable" {
+                Some(
+                    "Executable tidak tersedia atau identitasnya berubah. Daftarkan ulang file."
+                        .into(),
+                )
+            } else if uncertain {
+                Some("Pemeriksaan proses belum lengkap. Jumlah yang ditampilkan hanya proses terverifikasi.".into())
+            } else {
+                None
+            };
             statuses.push(GameStatus {
                 game,
                 status: status.into(),
@@ -318,7 +384,7 @@ impl Registry {
         }
         let snapshot = Snapshot {
             recorded_at: Utc::now().to_rfc3339(),
-            status: if complete { "ready" } else { "degraded" }.into(),
+            status: if incomplete { "degraded" } else { "ready" }.into(),
             games: statuses,
         };
         self.previous = Some((Instant::now(), snapshot.clone()));
@@ -589,6 +655,11 @@ mod tests {
             let games = get_games(&self.database.lock().unwrap()).unwrap();
             self.registry.snapshot(games).unwrap()
         }
+        fn bounded_snapshot(&mut self, budget: PollBudget) -> Snapshot {
+            self.registry.previous = None;
+            let games = get_games(&self.database.lock().unwrap()).unwrap();
+            self.registry.snapshot_with_budget(games, budget).unwrap()
+        }
     }
     impl Drop for Fixture {
         fn drop(&mut self) {
@@ -615,6 +686,111 @@ mod tests {
     impl Drop for Child {
         fn drop(&mut self) {
             self.stop();
+        }
+    }
+    #[test]
+    fn bounded_handles_keep_uncertain_overlap_until_a_verified_final_exit() {
+        let mut fixture = Fixture::new();
+        let game = fixture.register();
+        let mut first = Child::start(&fixture.first);
+        let mut second = Child::start(&fixture.first);
+        let budget = PollBudget {
+            inspections: 1,
+            tracked: 1,
+        };
+        let snapshot = fixture.bounded_snapshot(budget);
+        assert_eq!(snapshot.status, "degraded");
+        assert_eq!(snapshot.games[0].status, "running");
+        assert_eq!(snapshot.games[0].process_count, 1);
+        assert!(snapshot.games[0].message.is_some());
+        assert_eq!(fixture.registry.last_inspections, 1);
+        let held = fixture.registry.processes[&game.id][0].clone();
+        let next = fixture.bounded_snapshot(budget);
+        assert_eq!(next.games[0].process_count, 1);
+        assert_eq!(fixture.registry.last_inspections, 0);
+        assert!(Arc::ptr_eq(&held, &fixture.registry.processes[&game.id][0]));
+        if held.pid == first.0.id() {
+            first.stop();
+        } else {
+            second.stop();
+        }
+        let after_exit = fixture.bounded_snapshot(budget);
+        assert_eq!(after_exit.games[0].status, "running");
+        assert_eq!(after_exit.games[0].process_count, 1);
+        assert_ne!(fixture.registry.processes[&game.id][0].pid, held.pid);
+        assert_eq!(
+            fixture
+                .registry
+                .processes
+                .values()
+                .map(Vec::len)
+                .sum::<usize>(),
+            1
+        );
+        first.stop();
+        second.stop();
+        let ended = fixture.bounded_snapshot(budget);
+        assert_eq!(ended.games[0].status, "ready");
+        assert_eq!(ended.games[0].process_count, 0);
+        assert!(ended.games[0].message.is_none());
+        assert_eq!(
+            fixture
+                .registry
+                .processes
+                .values()
+                .map(Vec::len)
+                .sum::<usize>(),
+            0
+        );
+    }
+    #[test]
+    fn bounded_inspection_rotates_past_unrelated_same_name_processes() {
+        let mut fixture = Fixture::new();
+        fixture.register();
+        let mut unrelated = Child::start(&fixture.second);
+        let mut matching = Child::start(&fixture.first);
+        fixture.registry.candidate_cursor = unrelated.0.id().saturating_sub(1);
+        let budget = PollBudget {
+            inspections: 1,
+            tracked: 2,
+        };
+        let limited = fixture.bounded_snapshot(budget);
+        assert_eq!(limited.games[0].status, "unverified");
+        assert_eq!(limited.games[0].process_count, 0);
+        assert_eq!(fixture.registry.last_inspections, 1);
+        let rotated = fixture.bounded_snapshot(budget);
+        assert_eq!(rotated.games[0].status, "running");
+        assert_eq!(rotated.games[0].process_count, 1);
+        assert_eq!(fixture.registry.last_inspections, 1);
+        let complete = fixture.bounded_snapshot(budget);
+        assert_eq!(complete.status, "ready");
+        assert_eq!(complete.games[0].process_count, 1);
+        assert!(complete.games[0].message.is_none());
+        matching.stop();
+        let ended = fixture.bounded_snapshot(budget);
+        assert_eq!(ended.games[0].status, "ready");
+        assert_eq!(ended.games[0].process_count, 0);
+        assert!(unrelated.0.try_wait().unwrap().is_none());
+    }
+    #[test]
+    fn known_live_handles_are_not_reopened_even_with_spare_budget() {
+        let mut fixture = Fixture::new();
+        let game = fixture.register();
+        let _first = Child::start(&fixture.first);
+        let _second = Child::start(&fixture.first);
+        let budget = PollBudget {
+            inspections: 2,
+            tracked: 3,
+        };
+        assert_eq!(fixture.bounded_snapshot(budget).games[0].process_count, 2);
+        assert_eq!(fixture.registry.last_inspections, 2);
+        let held = fixture.registry.processes[&game.id].clone();
+        assert_eq!(fixture.bounded_snapshot(budget).games[0].process_count, 2);
+        assert_eq!(fixture.registry.last_inspections, 0);
+        for process in held {
+            assert!(fixture.registry.processes[&game.id]
+                .iter()
+                .any(|next| Arc::ptr_eq(&process, next)));
         }
     }
     #[test]

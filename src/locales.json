@@ -2082,5 +2082,9 @@
   "Game tidak lagi terverifikasi aktif untuk Auto Boost": [
     "The game is no longer verified as running for Auto Boost",
     "Ya no se verifica que el juego esté en ejecución para Auto Boost"
+  ],
+  "Pemeriksaan proses belum lengkap. Jumlah yang ditampilkan hanya proses terverifikasi.": [
+    "Process checks are incomplete. Only verified processes are counted.",
+    "La comprobación de procesos está incompleta. Solo se cuentan los procesos verificados."
   ]
 }
