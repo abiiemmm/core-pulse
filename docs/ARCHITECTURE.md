@@ -34,6 +34,8 @@ Operations that change Windows state need explicit user intent, constrained inpu
 
 ## Build and artifact lifecycle
 
+The workflow separates a lightweight ownership audit from the Windows application build. The ownership job checks the exact published revision (the source-branch SHA on pull requests) with full Git history and gates the Windows job. Windows keeps the default PR merge checkout for integration checks. Both jobs use read-only repository permissions and SHA-pinned actions; see [CONTRIBUTING.md](../CONTRIBUTING.md) for local commands and attribution rules.
+
 The npm, Cargo, and NuGet lockfiles are checked in. The .NET SDK is pinned in `global.json`. Build the sensor host before a fresh Rust/Tauri check because `tauri.conf.json` bundles `sidecar/publish/`. Dependency source archives are downloaded from `source-manifest.json` and verified by hash; their notices and sources are bundled with the installer.
 
 Git tracks source, configuration, lockfiles, and static icons. CI produces an unsigned x64 installer and checksum manifest as downloadable Actions artifacts. User databases, private QA evidence, generated schemas, runtime bundles, and portable toolchains stay outside Git. See [CONTRIBUTING.md](../CONTRIBUTING.md) for the workflow and [PRODUCTION.md](../PRODUCTION.md) for release limitations.

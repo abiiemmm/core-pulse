@@ -19,7 +19,9 @@ Create a focused branch such as `feat/game-registration`, `fix/history-retention
 
 Use the maintainer's GitHub identity for commits. Preserve published history and avoid force pushes to `main`. Commit messages describe the change and contain no co-author trailers. The initial license commit and its attribution remain intact.
 
-Use `abiiemmm <131965106+abiiemmm@users.noreply.github.com>` as the Git author. `npm run check` audits the current branch's complete ancestry for that author email and rejects co-author trailers or additional code owners. CI checks out full history so the same policy applies there. GitHub may be the committer of a web-created commit; the policy checks its author. This source check complements GitHub access settings, which must continue to have only the maintainer and no pending collaborator invitations.
+Use `abiiemmm <131965106+abiiemmm@users.noreply.github.com>` as the Git author. `npm run check` audits the current branch's complete ancestry for that author email and rejects co-author trailers or additional code owners. Shallow history is rejected because it can hide earlier attribution. GitHub may be the committer of a web-created commit; the policy checks its author. This source check complements GitHub access settings, which must continue to have only the maintainer and no pending collaborator invitations.
+
+CI runs a lightweight ownership job before the Windows build. For pull requests it checks out the exact source-branch commit with full history; GitHub's temporary merge commit is not a published author and must not produce a false ownership failure. The Windows job separately checks the default merge revision to test integration with `main`. Published merge commits remain subject to the author policy. `npm run check:ownership` runs the audit and isolated Git regression fixtures; `npm run check:app` runs application checks. Use the combined `npm run check` locally before pushing.
 
 ## Dependency and source boundaries
 

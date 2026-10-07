@@ -6,6 +6,14 @@ import subprocess
 MAINTAINER = "abiiemmm"
 AUTHOR_EMAIL = "131965106+abiiemmm@users.noreply.github.com"
 
+# A shallow checkout can hide an earlier author or co-author trailer.
+shallow = subprocess.run(
+    ["git", "rev-parse", "--is-shallow-repository"],
+    check=True, capture_output=True, encoding="utf-8",
+).stdout.strip()
+if shallow != "false":
+    raise SystemExit("Ownership audit requires full history; fetch with --unshallow or fetch-depth: 0.")
+
 owners = [
     line.strip()
     for line in Path(".github/CODEOWNERS").read_text(encoding="utf-8").splitlines()

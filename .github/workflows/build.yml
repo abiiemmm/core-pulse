@@ -13,8 +13,28 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  ownership:
+    name: Sole-maintainer ownership
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          # Audit published commits, not GitHub's temporary PR merge commit.
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12'
+      - name: Check authors, co-author trailers and code owners
+        run: |
+          python scripts/check-repository.py
+          python -m unittest discover -s tests -p test_repository.py
+
   windows:
     name: Windows checks and installer
+    needs: ownership
     runs-on: windows-latest
     timeout-minutes: 45
     steps:
@@ -47,8 +67,9 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Prepare sensor resources and run host self-test
         run: npm run sensors:build
-      - name: Check ownership, contracts, analytics, translations, SQLite and Rust
-        run: npm run check
+      # Keep the default PR merge checkout here to test integration with main.
+      - name: Check contracts, analytics, translations, SQLite and Rust
+        run: npm run check:app
       - name: Build unsigned internal installer
         run: npm run tauri:build
       - name: Write installer checksums
